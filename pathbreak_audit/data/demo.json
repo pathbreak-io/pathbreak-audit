@@ -1,0 +1,69 @@
+{
+ "account": "123456789012  (example data)",
+ "principals": [
+  {
+   "name": "octo-deploy",
+   "arn": "arn:aws:iam::123456789012:role/octo-deploy",
+   "type": "role",
+   "allow": ["iam:PassRole", "ec2:RunInstances", "ec2:CreateFleet", "ec2:DescribeInstances"],
+   "deny": []
+  },
+  {
+   "name": "ci-lambda-builder",
+   "arn": "arn:aws:iam::123456789012:role/ci-lambda-builder",
+   "type": "role",
+   "allow": ["iam:PassRole", "lambda:CreateFunction", "lambda:InvokeFunction", "logs:CreateLogGroup"],
+   "deny": []
+  },
+  {
+   "name": "dana-analyst",
+   "arn": "arn:aws:iam::123456789012:user/dana-analyst",
+   "type": "user",
+   "allow": ["sts:AssumeRole", "s3:GetObject", "s3:ListBucket", "athena:StartQueryExecution"],
+   "deny": []
+  },
+  {
+   "name": "iam-helpdesk",
+   "arn": "arn:aws:iam::123456789012:role/iam-helpdesk",
+   "type": "role",
+   "allow": ["iam:CreateAccessKey", "iam:UpdateLoginProfile", "iam:AttachUserPolicy", "iam:ListUsers"],
+   "deny": []
+  },
+  {
+   "name": "policy-editor",
+   "arn": "arn:aws:iam::123456789012:role/policy-editor",
+   "type": "role",
+   "allow": ["iam:CreatePolicyVersion", "iam:PutUserPolicy", "iam:SetDefaultPolicyVersion"],
+   "deny": []
+  },
+  {
+   "name": "app-readonly",
+   "arn": "arn:aws:iam::123456789012:role/app-readonly",
+   "type": "role",
+   "allow": ["cloudwatch:GetMetricData", "ec2:DescribeInstances", "tag:GetResources", "sts:GetCallerIdentity"],
+   "deny": []
+  },
+  {
+   "name": "secrets-reader",
+   "arn": "arn:aws:iam::123456789012:user/secrets-reader",
+   "type": "user",
+   "allow": ["secretsmanager:GetSecretValue", "secretsmanager:ListSecrets"],
+   "allow_star": ["secretsmanager:GetSecretValue", "secretsmanager:ListSecrets"],
+   "deny": []
+  },
+  {
+   "name": "org-admin",
+   "arn": "arn:aws:iam::123456789012:role/org-admin",
+   "type": "role",
+   "allow": ["*"],
+   "deny": []
+  },
+  {
+   "name": "AWSControlTowerExecution",
+   "arn": "arn:aws:iam::123456789012:role/AWSControlTowerExecution",
+   "type": "role",
+   "allow": ["*"],
+   "deny": []
+  }
+ ]
+}

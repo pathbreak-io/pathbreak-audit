@@ -1,0 +1,91 @@
+PATHBREAK   AWS IAM exposure, for defenders
+
+v0.1.0   https://pathbreak.io
+
+Account: 123456789012  (example data)
+Scanned 7 principals. 4 hold abusable permissions (6 direct, 3 toxic combinations).
+Skipped 1 admin principal (already hold full access); 1 AWS default role. Add --include-admins / --include-default-roles to show them.
+Hidden to avoid noise: broad reads, Lambda invoke, AssumeRole and SSM sessions. Add --include-access for the read-all / invoke-anything cases. Which paths reach your data is Pathbreak's job.
+Each "to break it" line is one way to cut the path. Removing the permission or scoping it to what the principal needs depends on your business context.
+
+------------------------------------------------------------------------
+ROLE  iam-helpdesk
+  arn:aws:iam::123456789012:role/iam-helpdesk
+  * Directly abusable  |  Attach admin policy to user
+      needs: iam:AttachUserPolicy
+      grants: Can attach the AdministratorAccess managed policy to this user
+      to break it: Remove iam:AttachUserPolicy from the principal.
+      privilege-escalation
+      details: https://pathbreak.io/aws-privilege-escalation-map/iam-attachuserpolicy
+
+  * Directly abusable  |  Create access key for user
+      needs: iam:CreateAccessKey
+      grants: Can create a new long-lived access key for this user
+      to break it: Remove iam:CreateAccessKey from the principal.
+      persistence
+      details: https://pathbreak.io/aws-privilege-escalation-map/iam-createaccesskey
+
+  * Directly abusable  |  Reset console password for user
+      needs: iam:UpdateLoginProfile
+      grants: Can reset this user's console password and take it over
+      to break it: Remove iam:UpdateLoginProfile from the principal.
+      persistence
+      details: https://pathbreak.io/aws-privilege-escalation-map/iam-updateloginprofile
+
+------------------------------------------------------------------------
+ROLE  octo-deploy
+  arn:aws:iam::123456789012:role/octo-deploy
+  * Toxic combination of 2  |  EC2 CreateFleet passrole exec
+      needs: iam:PassRole + ec2:CreateFleet
+      grants: Can launch an EC2 fleet with an instance profile and reach its IMDS credentials
+      to break it: Scope iam:PassRole for roles trusting ec2.amazonaws.com; restrict
+      ec2:CreateFleet.
+      privilege-escalation
+      details: https://pathbreak.io/aws-privilege-escalation-map/ec2-createfleet-passrole
+
+  * Toxic combination of 2  |  Pass role to EC2
+      needs: iam:PassRole + ec2:RunInstances
+      grants: Can launch an EC2 instance with this role and run code as it
+      to break it: Remove iam:PassRole for this role or scope it with iam:PassedToService.
+      privilege-escalation
+      details: https://pathbreak.io/aws-privilege-escalation-map/ec2-run-passrole
+
+------------------------------------------------------------------------
+ROLE  policy-editor
+  arn:aws:iam::123456789012:role/policy-editor
+  * Directly abusable  |  Create default policy version
+      needs: iam:CreatePolicyVersion
+      grants: Can create a new default version of this attached managed policy
+      to break it: Remove iam:CreatePolicyVersion from the principal.
+      privilege-escalation
+      details: https://pathbreak.io/aws-privilege-escalation-map/iam-createpolicyversion
+
+  * Directly abusable  |  Put inline user policy
+      needs: iam:PutUserPolicy
+      grants: Can write an inline admin policy directly onto this user
+      to break it: Remove iam:PutUserPolicy from the principal.
+      privilege-escalation
+      details: https://pathbreak.io/aws-privilege-escalation-map/iam-putuserpolicy
+
+  * Directly abusable  |  Roll back default policy version
+      needs: iam:SetDefaultPolicyVersion
+      grants: Can roll this attached managed policy back to a more-permissive saved version
+      to break it: Remove iam:SetDefaultPolicyVersion from the principal; prune stale permissive
+      policy versions.
+      privilege-escalation
+      details: https://pathbreak.io/aws-privilege-escalation-map/iam-setdefaultpolicyversion
+
+------------------------------------------------------------------------
+ROLE  ci-lambda-builder
+  arn:aws:iam::123456789012:role/ci-lambda-builder
+  * Toxic combination of 2  |  Pass role to Lambda
+      needs: iam:PassRole + lambda:CreateFunction
+      grants: Can pass this role to a new Lambda function and run code as it
+      to break it: Remove iam:PassRole for this role or scope it with iam:PassedToService.
+      privilege-escalation
+      details: https://pathbreak.io/aws-privilege-escalation-map/lambda-passrole-create
+
+------------------------------------------------------------------------
+This is a point-in-time list of permissions that could be abused. To see which
+of these reach your sensitive data, the blast radius across accounts, and the
+one change that breaks the most paths, run Pathbreak:  https://pathbreak.io

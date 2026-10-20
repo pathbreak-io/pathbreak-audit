@@ -1,0 +1,3929 @@
+{
+ "schema": 1,
+ "generated": "2026-10-21",
+ "source": "https://pathbreak.io/aws-privilege-escalation-map",
+ "count": 159,
+ "checks": [
+  {
+   "id": "iam-attachrolepolicy",
+   "title": "Attach admin policy to role",
+   "needs_actions": [
+    "iam:AttachRolePolicy"
+   ],
+   "primary_action": "iam:AttachRolePolicy",
+   "service": "IAM",
+   "category": "self-escalation",
+   "grants": "Can attach the AdministratorAccess managed policy to this role",
+   "why": "this principal can call iam:AttachRolePolicy to attach AdministratorAccess (or any managed policy) to role the target. Once this principal can use the target (assume it, or steal its credentials from compute), the target is now an administrator; the attachment persists until removed.",
+   "fix": "Remove iam:AttachRolePolicy from the principal.",
+   "tactic": "privilege-escalation",
+   "mitre": {
+    "id": "T1098.003",
+    "name": "Account Manipulation: Additional Cloud Roles"
+   },
+   "tier": 3,
+   "combination": false,
+   "references": [
+    "https://attack.mitre.org/techniques/T1098/003/"
+   ],
+   "url": "https://pathbreak.io/aws-privilege-escalation-map/iam-attachrolepolicy"
+  },
+  {
+   "id": "iam-attachuserpolicy",
+   "title": "Attach admin policy to user",
+   "needs_actions": [
+    "iam:AttachUserPolicy"
+   ],
+   "primary_action": "iam:AttachUserPolicy",
+   "service": "IAM",
+   "category": "self-escalation",
+   "grants": "Can attach the AdministratorAccess managed policy to this user",
+   "why": "this principal can call iam:AttachUserPolicy to attach the managed AdministratorAccess policy (or any powerful managed policy) to user the target. If the target is controlled by this principal this is one-call self-promotion to full admin, and the attachment persists until someone detaches it.",
+   "fix": "Remove iam:AttachUserPolicy from the principal.",
+   "tactic": "privilege-escalation",
+   "mitre": {
+    "id": "T1098.003",
+    "name": "Account Manipulation: Additional Cloud Roles"
+   },
+   "tier": 3,
+   "combination": false,
+   "references": [
+    "https://attack.mitre.org/techniques/T1098/003/"
+   ],
+   "url": "https://pathbreak.io/aws-privilege-escalation-map/iam-attachuserpolicy"
+  },
+  {
+   "id": "iam-createpolicyversion",
+   "title": "Create default policy version",
+   "needs_actions": [
+    "iam:CreatePolicyVersion"
+   ],
+   "primary_action": "iam:CreatePolicyVersion",
+   "service": "IAM",
+   "category": "self-escalation",
+   "grants": "Can create a new default version of this attached managed policy",
+   "why": "this principal can call iam:CreatePolicyVersion on attached customer-managed policy the target and publish a new version marked as default. That silently rewrites the effective permissions of every principal the target is attached to, including this principal itself, so this principal can grant itself full administrator access in a single call. AWS-managed policies are immune (they cannot be versioned), which is why only customer-managed policies are targeted.",
+   "fix": "Remove iam:CreatePolicyVersion from the principal.",
+   "tactic": "privilege-escalation",
+   "mitre": {
+    "id": "T1098.003",
+    "name": "Account Manipulation: Additional Cloud Roles"
+   },
+   "tier": 3,
+   "combination": false,
+   "references": [
+    "https://attack.mitre.org/techniques/T1098/003/"
+   ],
+   "url": "https://pathbreak.io/aws-privilege-escalation-map/iam-createpolicyversion"
+  },
+  {
+   "id": "rolesanywhere-createprofile-passrole",
+   "title": "Create Roles Anywhere profile credentials",
+   "needs_actions": [
+    "rolesanywhere:CreateProfile",
+    "iam:PassRole"
+   ],
+   "primary_action": "iam:PassRole",
+   "service": "IAM",
+   "category": "passrole-create",
+   "grants": "Can bind a privileged role to a Roles Anywhere profile and create creds from an external cert",
+   "why": "this principal can call rolesanywhere:CreateProfile to bind privileged role the target to an IAM Roles Anywhere profile, then present a certificate chained to a registered trust anchor to create that role's credentials from outside AWS. This survives IAM credential rotation and is durable persistence.",
+   "fix": "Restrict rolesanywhere:CreateProfile and iam:PassRole for roles trusting rolesanywhere.amazonaws.com to a break-glass role.",
+   "tactic": "privilege-escalation",
+   "mitre": {
+    "id": "T1098.001",
+    "name": "Account Manipulation: Additional Cloud Credentials"
+   },
+   "tier": 3,
+   "combination": true,
+   "references": [
+    "https://attack.mitre.org/techniques/T1098/001/"
+   ],
+   "url": "https://pathbreak.io/aws-privilege-escalation-map/rolesanywhere-createprofile-passrole"
+  },
+  {
+   "id": "ec2-createfleet-passrole",
+   "title": "EC2 CreateFleet passrole exec",
+   "needs_actions": [
+    "iam:PassRole",
+    "ec2:CreateFleet"
+   ],
+   "primary_action": "iam:PassRole",
+   "service": "IAM",
+   "category": "passrole-create",
+   "grants": "Can launch an EC2 fleet with an instance profile and reach its IMDS credentials",
+   "why": "this principal can call ec2:CreateFleet with a launch template carrying instance-profile role the target, launching instances whose IMDS exposes the target's credentials. Standard IMDS/user-data code-exec as the passed role.",
+   "fix": "Scope iam:PassRole for roles trusting ec2.amazonaws.com; restrict ec2:CreateFleet.",
+   "tactic": "privilege-escalation",
+   "mitre": {
+    "id": "T1578.002",
+    "name": "Modify Cloud Compute Infrastructure: Create Cloud Instance"
+   },
+   "tier": 3,
+   "combination": true,
+   "references": [
+    "https://attack.mitre.org/techniques/T1578/002/"
+   ],
+   "url": "https://pathbreak.io/aws-privilege-escalation-map/ec2-createfleet-passrole"
+  },
+  {
+   "id": "eks-createnodegroup-passrole",
+   "title": "EKS node group passrole exec",
+   "needs_actions": [
+    "iam:PassRole",
+    "eks:CreateNodegroup"
+   ],
+   "primary_action": "iam:PassRole",
+   "service": "IAM",
+   "category": "passrole-create",
+   "grants": "Can create an EKS managed node group whose EC2 node role creds are attacker-reachable",
+   "why": "this principal can call eks:CreateNodegroup passing node role the target. The managed nodes are ordinary EC2 instances exposing the target via IMDS, and node roles are frequently broad (ECR, CNI, SSM, plus app policies).",
+   "fix": "Scope iam:PassRole for the node role (trusts ec2.amazonaws.com); restrict eks:CreateNodegroup.",
+   "tactic": "privilege-escalation",
+   "mitre": {
+    "id": "T1578.002",
+    "name": "Modify Cloud Compute Infrastructure: Create Cloud Instance"
+   },
+   "tier": 3,
+   "combination": true,
+   "references": [
+    "https://attack.mitre.org/techniques/T1578/002/"
+   ],
+   "url": "https://pathbreak.io/aws-privilege-escalation-map/eks-createnodegroup-passrole"
+  },
+  {
+   "id": "eks-createpodidentity-passrole",
+   "title": "EKS Pod Identity passrole",
+   "needs_actions": [
+    "eks:CreatePodIdentityAssociation",
+    "iam:PassRole"
+   ],
+   "primary_action": "iam:PassRole",
+   "service": "IAM",
+   "category": "passrole-create",
+   "grants": "Can bind a privileged role to an attacker pod via a new Pod Identity association",
+   "why": "this principal can call eks:CreatePodIdentityAssociation to map privileged role the target onto a service account it controls, then run a pod as that account to assume the target through the EKS Pod Identity agent.",
+   "fix": "Scope iam:PassRole for roles trusting pods.eks.amazonaws.com; restrict eks:CreatePodIdentityAssociation to cluster admins.",
+   "tactic": "privilege-escalation",
+   "mitre": {
+    "id": "T1078.004",
+    "name": "Valid Accounts: Cloud Accounts"
+   },
+   "tier": 3,
+   "combination": true,
+   "references": [
+    "https://attack.mitre.org/techniques/T1078/004/"
+   ],
+   "url": "https://pathbreak.io/aws-privilege-escalation-map/eks-createpodidentity-passrole"
+  },
+  {
+   "id": "apprunner-updateservice-hijack",
+   "title": "Hijack App Runner service role",
+   "needs_actions": [
+    "apprunner:UpdateService"
+   ],
+   "primary_action": "apprunner:UpdateService",
+   "service": "App Runner",
+   "category": "hijack",
+   "grants": "Can reconfigure this App Runner service to run attacker code as its instance role",
+   "why": "this principal can call apprunner:UpdateService on an existing App Runner service that already carries instance role the target, reconfiguring it to run attacker-controlled code, a malicious StartCommand, a container image with a web shell, or a repository with a malicious apprunner.yaml. On the next deployment App Runner runs that code as the target, no iam:PassRole and no apprunner:CreateService needed, because the target is already bound to the service. The code reads the target's live credentials from the runtime environment or calls AWS directly; if the target is privileged this is full privilege escalation against a service that was already trusted.",
+   "fix": "Restrict apprunner:UpdateService on services that carry a privileged instance role; review source/image config changes.",
+   "tactic": "privilege-escalation",
+   "mitre": {
+    "id": "T1578",
+    "name": "Modify Cloud Compute Infrastructure"
+   },
+   "tier": 3,
+   "combination": false,
+   "references": [
+    "https://attack.mitre.org/techniques/T1578/"
+   ],
+   "url": "https://pathbreak.io/aws-privilege-escalation-map/apprunner-updateservice-hijack"
+  },
+  {
+   "id": "batch-submitjob-hijack",
+   "title": "Hijack Batch job-definition role",
+   "needs_actions": [
+    "batch:SubmitJob"
+   ],
+   "primary_action": "batch:SubmitJob",
+   "service": "Batch",
+   "category": "hijack",
+   "grants": "Can submit this Batch job with an override command and run a container as its job role",
+   "why": "this principal can call batch:SubmitJob against an existing Batch job definition that already carries job role the target, supplying a ContainerOverrides.Command whose shell command is attacker-controlled. Batch runs that command in a container as the target, no iam:PassRole and no batch:RegisterJobDefinition needed, because the target is already bound to the job definition. The command reads the target's live credentials from the task-metadata endpoint or calls AWS directly; if the target is privileged this is full privilege escalation against a job definition that was already trusted.",
+   "fix": "Restrict batch:SubmitJob on job queues/definitions that carry a privileged jobRoleArn; disallow ContainerOverrides.Command.",
+   "tactic": "privilege-escalation",
+   "mitre": {
+    "id": "T1578",
+    "name": "Modify Cloud Compute Infrastructure"
+   },
+   "tier": 3,
+   "combination": false,
+   "references": [
+    "https://attack.mitre.org/techniques/T1578/"
+   ],
+   "url": "https://pathbreak.io/aws-privilege-escalation-map/batch-submitjob-hijack"
+  },
+  {
+   "id": "cfn-updatestack-hijack",
+   "title": "Hijack CloudFormation stack role",
+   "needs_actions": [
+    "cloudformation:UpdateStack"
+   ],
+   "primary_action": "cloudformation:UpdateStack",
+   "service": "CloudFormation",
+   "category": "hijack",
+   "grants": "Can update this stack's template and run changes as its existing service role",
+   "why": "this principal can call cloudformation:UpdateStack on the target, which already carries a privileged service role. By pushing a modified template, this principal makes CloudFormation execute its changes using the target's existing service role, no iam:PassRole needed, because the role is already bound to the stack. A privileged service role means the attacker's template can provision admin resources: full privilege escalation.",
+   "fix": "Restrict cloudformation:UpdateStack on stacks that carry a privileged service role.",
+   "tactic": "privilege-escalation",
+   "mitre": {
+    "id": "T1578",
+    "name": "Modify Cloud Compute Infrastructure"
+   },
+   "tier": 3,
+   "combination": false,
+   "references": [
+    "https://attack.mitre.org/techniques/T1578/"
+   ],
+   "url": "https://pathbreak.io/aws-privilege-escalation-map/cfn-updatestack-hijack"
+  },
+  {
+   "id": "cfn-changeset-hijack",
+   "title": "Hijack CloudFormation stack role via change set",
+   "needs_actions": [
+    "cloudformation:CreateChangeSet",
+    "cloudformation:ExecuteChangeSet"
+   ],
+   "primary_action": "cloudformation:ExecuteChangeSet",
+   "service": "CloudFormation",
+   "category": "hijack",
+   "grants": "Can execute a malicious change set on this stack as its existing service role",
+   "why": "this principal can call cloudformation:CreateChangeSet and cloudformation:ExecuteChangeSet on an existing CloudFormation stack that already carries service role the target. By staging a modified template as a change set and executing it, this principal makes CloudFormation apply the attacker's changes using the target, no iam:PassRole needed, because the target is already bound to the stack. A privileged service role means the attacker's template can provision admin resources: full privilege escalation against a stack that was already trusted.",
+   "fix": "Restrict cloudformation:CreateChangeSet/ExecuteChangeSet on stacks that carry a privileged service role.",
+   "tactic": "privilege-escalation",
+   "mitre": {
+    "id": "T1578",
+    "name": "Modify Cloud Compute Infrastructure"
+   },
+   "tier": 3,
+   "combination": true,
+   "references": [
+    "https://attack.mitre.org/techniques/T1578/"
+   ],
+   "url": "https://pathbreak.io/aws-privilege-escalation-map/cfn-changeset-hijack"
+  },
+  {
+   "id": "codebuild-startbuild-hijack",
+   "title": "Hijack CodeBuild project role",
+   "needs_actions": [
+    "codebuild:StartBuild"
+   ],
+   "primary_action": "codebuild:StartBuild",
+   "service": "CodeBuild",
+   "category": "hijack",
+   "grants": "Can start this CodeBuild project with override commands as its service role",
+   "why": "this principal can call codebuild:StartBuild on an existing CodeBuild project that already carries service role the target, supplying a buildspecOverride whose shell commands are attacker-controlled. CodeBuild runs those commands on its managed infrastructure as the target, no iam:PassRole and no codebuild:CreateProject needed, because the target is already bound to the project. The commands read the target's live credentials from the build environment or call AWS directly; if the target is privileged this is full privilege escalation against a project that was already trusted.",
+   "fix": "Restrict codebuild:StartBuild on projects that carry a privileged service role; disallow buildspec overrides.",
+   "tactic": "privilege-escalation",
+   "mitre": {
+    "id": "T1578",
+    "name": "Modify Cloud Compute Infrastructure"
+   },
+   "tier": 3,
+   "combination": false,
+   "references": [
+    "https://attack.mitre.org/techniques/T1578/"
+   ],
+   "url": "https://pathbreak.io/aws-privilege-escalation-map/codebuild-startbuild-hijack"
+  },
+  {
+   "id": "codebuild-startbuildbatch-hijack",
+   "title": "Hijack CodeBuild project role (batch)",
+   "needs_actions": [
+    "codebuild:StartBuildBatch"
+   ],
+   "primary_action": "codebuild:StartBuildBatch",
+   "service": "CodeBuild",
+   "category": "hijack",
+   "grants": "Can start a batch build on this project with override commands as its service role",
+   "why": "this principal can call codebuild:StartBuildBatch on an existing CodeBuild project that already carries service role the target, supplying a buildspecOverride whose shell commands are attacker-controlled. CodeBuild runs those commands on its managed infrastructure as the target, no iam:PassRole and no codebuild:CreateProject needed, because the target is already bound to the project. The commands read the target's live credentials from the build environment or call AWS directly; if the target is privileged this is full privilege escalation against a project that was already trusted.",
+   "fix": "Restrict codebuild:StartBuildBatch on projects that carry a privileged service role; disallow buildspec overrides.",
+   "tactic": "privilege-escalation",
+   "mitre": {
+    "id": "T1578",
+    "name": "Modify Cloud Compute Infrastructure"
+   },
+   "tier": 3,
+   "combination": false,
+   "references": [
+    "https://attack.mitre.org/techniques/T1578/"
+   ],
+   "url": "https://pathbreak.io/aws-privilege-escalation-map/codebuild-startbuildbatch-hijack"
+  },
+  {
+   "id": "ec2-modify-userdata-hijack",
+   "title": "Hijack EC2 user-data",
+   "needs_actions": [
+    "ec2:ModifyInstanceAttribute",
+    "ec2:StartInstances",
+    "ec2:StopInstances"
+   ],
+   "primary_action": "ec2:ModifyInstanceAttribute",
+   "service": "EC2",
+   "category": "hijack",
+   "grants": "Can rewrite this instance's user-data and run code as its instance-profile role",
+   "why": "this principal can stop the target, rewrite its user-data with ec2:ModifyInstanceAttribute, and start it again; on boot the instance runs the attacker's user-data script as its already-attached instance-profile role, no iam:PassRole needed. A privileged instance profile means arbitrary code execution as that role: full privilege escalation against a box that was already trusted.",
+   "fix": "Restrict ec2:ModifyInstanceAttribute on instances with attached instance profiles.",
+   "tactic": "privilege-escalation",
+   "mitre": {
+    "id": "T1578",
+    "name": "Modify Cloud Compute Infrastructure"
+   },
+   "tier": 3,
+   "combination": true,
+   "references": [
+    "https://attack.mitre.org/techniques/T1578/"
+   ],
+   "url": "https://pathbreak.io/aws-privilege-escalation-map/ec2-modify-userdata-hijack"
+  },
+  {
+   "id": "glue-updatedevendpoint-hijack",
+   "title": "Hijack Glue dev endpoint role",
+   "needs_actions": [
+    "glue:UpdateDevEndpoint"
+   ],
+   "primary_action": "glue:UpdateDevEndpoint",
+   "service": "Glue",
+   "category": "hijack",
+   "grants": "Can inject an SSH key into this Glue dev endpoint and run a session as its role",
+   "why": "this principal can call glue:UpdateDevEndpoint on an existing Glue development endpoint that already carries role the target, injecting an attacker SSH public key (addPublicKeys) or custom libraries. The attacker then SSHes into the endpoint and gets an interactive session that runs as the target, no iam:PassRole needed, because the target is already bound to the endpoint. The session reads the target's live temporary credentials directly; if the target is privileged this is full privilege escalation against a resource that was already trusted.",
+   "fix": "Restrict glue:UpdateDevEndpoint on dev endpoints that carry a privileged role; disallow adding SSH public keys / custom libraries to existing endpoints.",
+   "tactic": "privilege-escalation",
+   "mitre": {
+    "id": "T1578",
+    "name": "Modify Cloud Compute Infrastructure"
+   },
+   "tier": 3,
+   "combination": false,
+   "references": [
+    "https://attack.mitre.org/techniques/T1578/"
+   ],
+   "url": "https://pathbreak.io/aws-privilege-escalation-map/glue-updatedevendpoint-hijack"
+  },
+  {
+   "id": "ssm-sendcommand-hijack",
+   "title": "Hijack instance role via SSM command",
+   "needs_actions": [
+    "ssm:SendCommand",
+    "ec2:DescribeInstances"
+   ],
+   "primary_action": "ssm:SendCommand",
+   "service": "Systems Manager",
+   "category": "hijack",
+   "grants": "Can run a command on this instance via SSM and steal its instance-profile role",
+   "why": "this principal can call ssm:SendCommand to run an AWS-RunShellScript document on an SSM-managed instance that already carries instance-profile role the target, executing attacker commands that read the target's live credentials from IMDS and ship them out, non-interactively, with no shell session, key, or open port. Because the target is already bound to the box, command execution on it is enough to steal the role, no iam:PassRole needed. If the target is privileged this is full privilege escalation against an instance that was already trusted, and it is scriptable across many instances at once.",
+   "fix": "Restrict ssm:SendCommand to break-glass principals; reduce the instance-profile role's permissions.",
+   "tactic": "privilege-escalation",
+   "mitre": {
+    "id": "T1578",
+    "name": "Modify Cloud Compute Infrastructure"
+   },
+   "tier": 3,
+   "combination": true,
+   "references": [
+    "https://attack.mitre.org/techniques/T1578/"
+   ],
+   "url": "https://pathbreak.io/aws-privilege-escalation-map/ssm-sendcommand-hijack"
+  },
+  {
+   "id": "ssm-startsession-hijack",
+   "title": "Hijack instance role via SSM session",
+   "needs_actions": [
+    "ssm:StartSession",
+    "ec2:DescribeInstances"
+   ],
+   "primary_action": "ssm:StartSession",
+   "service": "Systems Manager",
+   "category": "hijack",
+   "grants": "Can open an SSM shell on this instance and steal its instance-profile role",
+   "why": "this principal can call ssm:StartSession to open an interactive Session Manager shell on an SSM-managed instance that already carries instance-profile role the target, then read the target's live credentials from the instance metadata service (IMDS). No SSH key, no open security-group port, and no write to the instance, because the target is already bound to the box a shell on it is enough to steal the role. If the target is privileged this is full privilege escalation against an instance that was already trusted.",
+   "fix": "Restrict ssm:StartSession to break-glass principals; reduce the instance-profile role's permissions.",
+   "tactic": "privilege-escalation",
+   "mitre": {
+    "id": "T1578",
+    "name": "Modify Cloud Compute Infrastructure"
+   },
+   "tier": 3,
+   "combination": true,
+   "references": [
+    "https://attack.mitre.org/techniques/T1578/"
+   ],
+   "url": "https://pathbreak.io/aws-privilege-escalation-map/ssm-startsession-hijack"
+  },
+  {
+   "id": "lambda-updatefunctioncode-hijack",
+   "title": "Hijack Lambda function code",
+   "needs_actions": [
+    "lambda:UpdateFunctionCode"
+   ],
+   "primary_action": "lambda:UpdateFunctionCode",
+   "service": "Lambda",
+   "category": "hijack",
+   "grants": "Can overwrite this function's code and run it as its execution role",
+   "why": "this principal can call lambda:UpdateFunctionCode on an existing function that runs as the target, overwriting the function's deployment package with attacker-controlled code. On the next invocation that code executes with the target's permissions and reads the target's live credentials from the Lambda runtime environment, no iam:PassRole needed, because the target is already bound to the function. If the target is privileged this is full privilege escalation against a function that was already trusted.",
+   "fix": "Restrict lambda:UpdateFunctionCode to CI/CD principals; reduce the function execution role's permissions.",
+   "tactic": "privilege-escalation",
+   "mitre": {
+    "id": "T1578",
+    "name": "Modify Cloud Compute Infrastructure"
+   },
+   "tier": 3,
+   "combination": false,
+   "references": [
+    "https://attack.mitre.org/techniques/T1578/"
+   ],
+   "url": "https://pathbreak.io/aws-privilege-escalation-map/lambda-updatefunctioncode-hijack"
+  },
+  {
+   "id": "lambda-updatefunctionconfiguration-hijack",
+   "title": "Hijack Lambda function configuration",
+   "needs_actions": [
+    "lambda:UpdateFunctionConfiguration"
+   ],
+   "primary_action": "lambda:UpdateFunctionConfiguration",
+   "service": "Lambda",
+   "category": "hijack",
+   "grants": "Can attach a malicious layer to this function and run code as its execution role",
+   "why": "this principal can call lambda:UpdateFunctionConfiguration on an existing function that runs as the target, attaching an attacker-controlled Lambda layer (or changing the runtime, handler, or environment) so that attacker code loads on the next invocation, without overwriting the function's published code. That code executes with the target's permissions and reads the target's live credentials from the Lambda runtime environment, no iam:PassRole needed, because the target is already bound to the function. If the target is privileged this is full privilege escalation against a function that was already trusted.",
+   "fix": "Restrict lambda:UpdateFunctionConfiguration to CI/CD principals; reduce the function execution role's permissions.",
+   "tactic": "privilege-escalation",
+   "mitre": {
+    "id": "T1578",
+    "name": "Modify Cloud Compute Infrastructure"
+   },
+   "tier": 3,
+   "combination": false,
+   "references": [
+    "https://attack.mitre.org/techniques/T1578/"
+   ],
+   "url": "https://pathbreak.io/aws-privilege-escalation-map/lambda-updatefunctionconfiguration-hijack"
+  },
+  {
+   "id": "sagemaker-lifecycleconfig-hijack",
+   "title": "Hijack SageMaker notebook via lifecycle config",
+   "needs_actions": [
+    "sagemaker:CreateNotebookInstanceLifecycleConfig",
+    "sagemaker:UpdateNotebookInstance",
+    "sagemaker:StopNotebookInstance",
+    "sagemaker:StartNotebookInstance"
+   ],
+   "primary_action": "sagemaker:UpdateNotebookInstance",
+   "service": "SageMaker",
+   "category": "hijack",
+   "grants": "Can attach a startup script to this notebook and run code as its execution role",
+   "why": "this principal can create a notebook lifecycle configuration with an attacker-controlled startup script, stop an existing notebook that runs as the target, attach the config with sagemaker:UpdateNotebookInstance, and start the notebook again. On startup the script executes as the target and reads the target's live credentials, no iam:PassRole needed, because the target is already bound to the notebook. If the target is privileged this is full privilege escalation against a notebook that was already trusted.",
+   "fix": "Restrict sagemaker:UpdateNotebookInstance / lifecycle-config actions on notebooks that carry a privileged execution role.",
+   "tactic": "privilege-escalation",
+   "mitre": {
+    "id": "T1578",
+    "name": "Modify Cloud Compute Infrastructure"
+   },
+   "tier": 3,
+   "combination": true,
+   "references": [
+    "https://attack.mitre.org/techniques/T1578/"
+   ],
+   "url": "https://pathbreak.io/aws-privilege-escalation-map/sagemaker-lifecycleconfig-hijack"
+  },
+  {
+   "id": "sagemaker-presigned-notebook-url",
+   "title": "Hijack SageMaker notebook via presigned URL",
+   "needs_actions": [
+    "sagemaker:CreatePresignedNotebookInstanceUrl"
+   ],
+   "primary_action": "sagemaker:CreatePresignedNotebookInstanceUrl",
+   "service": "SageMaker",
+   "category": "hijack",
+   "grants": "Can create a presigned URL to this notebook and run a shell as its execution role",
+   "why": "this principal can call sagemaker:CreatePresignedNotebookInstanceUrl on an existing notebook instance that runs as the target, creating a signed URL that opens the notebook's Jupyter environment. Using Jupyter's built-in terminal, a shell running as the target, the attacker reads the target's live credentials or calls AWS directly. No iam:PassRole is needed, because the target is already bound to the notebook. If the target is privileged this is full privilege escalation against a notebook that was already trusted.",
+   "fix": "Restrict sagemaker:CreatePresignedNotebookInstanceUrl to operators; reduce the notebook execution role's permissions.",
+   "tactic": "privilege-escalation",
+   "mitre": {
+    "id": "T1578",
+    "name": "Modify Cloud Compute Infrastructure"
+   },
+   "tier": 3,
+   "combination": false,
+   "references": [
+    "https://attack.mitre.org/techniques/T1578/"
+   ],
+   "url": "https://pathbreak.io/aws-privilege-escalation-map/sagemaker-presigned-notebook-url"
+  },
+  {
+   "id": "stepfunctions-updatestatemachine-hijack",
+   "title": "Hijack Step Functions state-machine role",
+   "needs_actions": [
+    "states:UpdateStateMachine",
+    "states:StartExecution"
+   ],
+   "primary_action": "states:UpdateStateMachine",
+   "service": "Step Functions",
+   "category": "hijack",
+   "grants": "Can rewrite this state machine and call AWS directly as its execution role",
+   "why": "this principal can call states:UpdateStateMachine on an existing Step Functions state machine that already carries execution role the target, replacing its ASL definition with one whose SDK-integration task calls AWS directly (e.g. iam:AttachUserPolicy), then states:StartExecution to run it. The task executes as the target, no iam:PassRole and no states:CreateStateMachine needed, because the target is already bound to the state machine. If the target is privileged this is full privilege escalation against a state machine that was already trusted.",
+   "fix": "Restrict states:UpdateStateMachine / states:StartExecution on state machines that carry a privileged execution role.",
+   "tactic": "privilege-escalation",
+   "mitre": {
+    "id": "T1578",
+    "name": "Modify Cloud Compute Infrastructure"
+   },
+   "tier": 3,
+   "combination": true,
+   "references": [
+    "https://attack.mitre.org/techniques/T1578/"
+   ],
+   "url": "https://pathbreak.io/aws-privilege-escalation-map/stepfunctions-updatestatemachine-hijack"
+  },
+  {
+   "id": "iam-putrolepolicy",
+   "title": "Put inline role policy",
+   "needs_actions": [
+    "iam:PutRolePolicy"
+   ],
+   "primary_action": "iam:PutRolePolicy",
+   "service": "IAM",
+   "category": "self-escalation",
+   "grants": "Can write an inline admin policy directly onto this role",
+   "why": "this principal can call iam:PutRolePolicy to write an inline policy onto role the target, granting it any permissions, typically full admin. Once this principal can reach the target (assume it, or steal its credentials via compute), the inline grant turns the target into an administrator and persists until removed.",
+   "fix": "Remove iam:PutRolePolicy from the principal.",
+   "tactic": "privilege-escalation",
+   "mitre": {
+    "id": "T1098.003",
+    "name": "Account Manipulation: Additional Cloud Roles"
+   },
+   "tier": 3,
+   "combination": false,
+   "references": [
+    "https://attack.mitre.org/techniques/T1098/003/"
+   ],
+   "url": "https://pathbreak.io/aws-privilege-escalation-map/iam-putrolepolicy"
+  },
+  {
+   "id": "iam-putuserpolicy",
+   "title": "Put inline user policy",
+   "needs_actions": [
+    "iam:PutUserPolicy"
+   ],
+   "primary_action": "iam:PutUserPolicy",
+   "service": "IAM",
+   "category": "self-escalation",
+   "grants": "Can write an inline admin policy directly onto this user",
+   "why": "this principal can call iam:PutUserPolicy to write an inline policy directly onto user the target, granting it any permissions it wants, typically a full administrator allow. If the target is a user this principal controls (often itself), this is immediate self-promotion to admin and the granted policy persists until removed.",
+   "fix": "Remove iam:PutUserPolicy from the principal.",
+   "tactic": "privilege-escalation",
+   "mitre": {
+    "id": "T1098.003",
+    "name": "Account Manipulation: Additional Cloud Roles"
+   },
+   "tier": 3,
+   "combination": false,
+   "references": [
+    "https://attack.mitre.org/techniques/T1098/003/"
+   ],
+   "url": "https://pathbreak.io/aws-privilege-escalation-map/iam-putuserpolicy"
+  },
+  {
+   "id": "iam-setdefaultpolicyversion",
+   "title": "Roll back default policy version",
+   "needs_actions": [
+    "iam:SetDefaultPolicyVersion"
+   ],
+   "primary_action": "iam:SetDefaultPolicyVersion",
+   "service": "IAM",
+   "category": "self-escalation",
+   "grants": "Can roll this attached managed policy back to a more-permissive saved version",
+   "why": "this principal can call iam:SetDefaultPolicyVersion on attached customer-managed policy the target to promote one of its non-default stored versions to the default. IAM keeps up to five versions of a policy; if an older, more-permissive version exists (for example a prior admin grant), rolling it back to default silently widens the effective permissions of every principal the target is attached to, including this principal itself, with no new policy document written. AWS-managed policies cannot be versioned, so only customer-managed policies are targeted.",
+   "fix": "Remove iam:SetDefaultPolicyVersion from the principal; prune stale permissive policy versions.",
+   "tactic": "privilege-escalation",
+   "mitre": {
+    "id": "T1098.003",
+    "name": "Account Manipulation: Additional Cloud Roles"
+   },
+   "tier": 3,
+   "combination": false,
+   "references": [
+    "https://attack.mitre.org/techniques/T1098/003/"
+   ],
+   "url": "https://pathbreak.io/aws-privilege-escalation-map/iam-setdefaultpolicyversion"
+  },
+  {
+   "id": "sagemaker-createmodel-endpoint-passrole",
+   "title": "SageMaker model/endpoint passrole exec",
+   "needs_actions": [
+    "iam:PassRole",
+    "sagemaker:CreateModel",
+    "sagemaker:CreateEndpointConfig",
+    "sagemaker:CreateEndpoint"
+   ],
+   "primary_action": "iam:PassRole",
+   "service": "IAM",
+   "category": "passrole-create",
+   "grants": "Can pass a role into a SageMaker model+endpoint and run an attacker container as it",
+   "why": "this principal can call sagemaker:CreateModel passing execution role the target with an attacker-controlled container image, then CreateEndpointConfig + CreateEndpoint to run it. The container executes as the target and can exfiltrate its credentials.",
+   "fix": "Scope iam:PassRole for roles trusting sagemaker.amazonaws.com; restrict sagemaker:CreateModel.",
+   "tactic": "privilege-escalation",
+   "mitre": {
+    "id": "T1648",
+    "name": "Serverless Execution"
+   },
+   "tier": 3,
+   "combination": true,
+   "references": [
+    "https://attack.mitre.org/techniques/T1648/",
+    "https://docs.aws.amazon.com/sagemaker/latest/dg/sagemaker-roles.html"
+   ],
+   "url": "https://pathbreak.io/aws-privilege-escalation-map/sagemaker-createmodel-endpoint-passrole"
+  },
+  {
+   "id": "sagemaker-hyperparametertuning-passrole",
+   "title": "SageMaker tuning job passrole exec",
+   "needs_actions": [
+    "iam:PassRole",
+    "sagemaker:CreateHyperParameterTuningJob"
+   ],
+   "primary_action": "iam:PassRole",
+   "service": "IAM",
+   "category": "passrole-create",
+   "grants": "Can pass a role into a SageMaker tuning job and run an attacker container as it",
+   "why": "this principal can call sagemaker:CreateHyperParameterTuningJob passing role the target, launching attacker-controlled training containers that execute as the target.",
+   "fix": "Scope iam:PassRole for roles trusting sagemaker.amazonaws.com; restrict sagemaker:CreateHyperParameterTuningJob.",
+   "tactic": "privilege-escalation",
+   "mitre": {
+    "id": "T1648",
+    "name": "Serverless Execution"
+   },
+   "tier": 3,
+   "combination": true,
+   "references": [
+    "https://attack.mitre.org/techniques/T1648/",
+    "https://docs.aws.amazon.com/sagemaker/latest/dg/sagemaker-roles.html"
+   ],
+   "url": "https://pathbreak.io/aws-privilege-escalation-map/sagemaker-hyperparametertuning-passrole"
+  },
+  {
+   "id": "iam-addusertogroup",
+   "title": "Add self to privileged group",
+   "needs_actions": [
+    "iam:AddUserToGroup"
+   ],
+   "primary_action": "iam:AddUserToGroup",
+   "service": "IAM",
+   "category": "self-escalation",
+   "grants": "Can add itself to this privileged group and inherit its permissions",
+   "why": "this principal can call iam:AddUserToGroup to add itself (or a user it controls) to privileged group the target, inheriting all of the target's permissions without touching any policy document. If the target already carries strong access this is instant privilege escalation, and the membership persists until revoked.",
+   "fix": "Remove iam:AddUserToGroup from the principal.",
+   "tactic": "privilege-escalation",
+   "mitre": {
+    "id": "T1098.003",
+    "name": "Account Manipulation: Additional Cloud Roles"
+   },
+   "tier": 2,
+   "combination": false,
+   "references": [
+    "https://attack.mitre.org/techniques/T1098/003/"
+   ],
+   "url": "https://pathbreak.io/aws-privilege-escalation-map/iam-addusertogroup"
+  },
+  {
+   "id": "sso-createaccountassignment",
+   "title": "Assign self to admin permission set",
+   "needs_actions": [
+    "sso:CreateAccountAssignment"
+   ],
+   "primary_action": "sso:CreateAccountAssignment",
+   "service": "IAM Identity Center",
+   "category": "self-escalation",
+   "grants": "Can assign a principal to an already-provisioned admin permission set",
+   "why": "this principal can call sso:CreateAccountAssignment to bind an attacker-controlled principal to permission set the target in a target account. If that set is already provisioned as an admin (e.g. AdministratorAccess), the assignment hands the attacker a federated admin role with no policy edit at all - the cleanest real-world Identity Center privesc.",
+   "fix": "Restrict sso:CreateAccountAssignment to a break-glass Identity Center admin; alarm on new assignments to privileged permission sets.",
+   "tactic": "privilege-escalation",
+   "mitre": {
+    "id": "T1098.003",
+    "name": "Account Manipulation: Additional Cloud Roles"
+   },
+   "tier": 2,
+   "combination": false,
+   "references": [
+    "https://attack.mitre.org/techniques/T1098/003/"
+   ],
+   "url": "https://pathbreak.io/aws-privilege-escalation-map/sso-createaccountassignment"
+  },
+  {
+   "id": "ec2-associate-instance-profile",
+   "title": "Associate instance profile (IMDS steal)",
+   "needs_actions": [
+    "iam:PassRole",
+    "ec2:AssociateIamInstanceProfile"
+   ],
+   "primary_action": "iam:PassRole",
+   "service": "IAM",
+   "category": "passrole-create",
+   "grants": "Can attach this role's instance profile to an EC2 instance and steal its credentials via IMDS",
+   "why": "this principal holds iam:PassRole on the target together with ec2:AssociateIamInstanceProfile, so it can attach the target's instance profile to an EC2 instance it controls and then read the role's temporary credentials from IMDS. Unlike ec2:RunInstances this needs no new instance: it re-points an existing box at a more privileged role, which is quieter and cheaper.",
+   "fix": "Remove iam:PassRole for this role or scope it with iam:PassedToService; restrict ec2:AssociateIamInstanceProfile / ReplaceIamInstanceProfileAssociation.",
+   "tactic": "privilege-escalation",
+   "mitre": {
+    "id": "T1552.005",
+    "name": "Unsecured Credentials: Cloud Instance Metadata API"
+   },
+   "tier": 2,
+   "combination": true,
+   "references": [
+    "https://attack.mitre.org/techniques/T1552/005/"
+   ],
+   "url": "https://pathbreak.io/aws-privilege-escalation-map/ec2-associate-instance-profile"
+  },
+  {
+   "id": "iam-attachgrouppolicy",
+   "title": "Attach admin policy to group",
+   "needs_actions": [
+    "iam:AttachGroupPolicy"
+   ],
+   "primary_action": "iam:AttachGroupPolicy",
+   "service": "IAM",
+   "category": "self-escalation",
+   "grants": "Can attach the AdministratorAccess managed policy to this group",
+   "why": "this principal can call iam:AttachGroupPolicy to attach AdministratorAccess (or any managed policy) to group the target, promoting every member, including this principal if it belongs to the target, in a single call. The attachment persists until removed.",
+   "fix": "Remove iam:AttachGroupPolicy from the principal.",
+   "tactic": "privilege-escalation",
+   "mitre": {
+    "id": "T1098.003",
+    "name": "Account Manipulation: Additional Cloud Roles"
+   },
+   "tier": 2,
+   "combination": false,
+   "references": [
+    "https://attack.mitre.org/techniques/T1098/003/"
+   ],
+   "url": "https://pathbreak.io/aws-privilege-escalation-map/iam-attachgrouppolicy"
+  },
+  {
+   "id": "sso-attachmanagedpolicy-escalation",
+   "title": "Attach admin to Identity Center permission set",
+   "needs_actions": [
+    "sso:AttachManagedPolicyToPermissionSet",
+    "sso:ProvisionPermissionSet"
+   ],
+   "primary_action": "sso:AttachManagedPolicyToPermissionSet",
+   "service": "IAM Identity Center",
+   "category": "self-escalation",
+   "grants": "Can attach AdministratorAccess to a provisioned permission set and push it",
+   "why": "this principal can call sso:AttachManagedPolicyToPermissionSet to add AdministratorAccess to permission set the target, then sso:ProvisionPermissionSet to push the change into every account the set is assigned to, turning a scoped federated role into an org-wide administrator.",
+   "fix": "Restrict sso:AttachManagedPolicyToPermissionSet / ProvisionPermissionSet to a break-glass role; alarm on the events.",
+   "tactic": "privilege-escalation",
+   "mitre": {
+    "id": "T1098.003",
+    "name": "Account Manipulation: Additional Cloud Roles"
+   },
+   "tier": 2,
+   "combination": true,
+   "references": [
+    "https://attack.mitre.org/techniques/T1098/003/"
+   ],
+   "url": "https://pathbreak.io/aws-privilege-escalation-map/sso-attachmanagedpolicy-escalation"
+  },
+  {
+   "id": "cognito-identity-setidentitypoolroles-passrole",
+   "title": "Bind role to Cognito Identity Pool",
+   "needs_actions": [
+    "iam:PassRole",
+    "cognito-identity:SetIdentityPoolRoles"
+   ],
+   "primary_action": "iam:PassRole",
+   "service": "IAM",
+   "category": "passrole-create",
+   "grants": "Can bind this role to a Cognito Identity Pool and redeem its credentials",
+   "why": "this principal holds iam:PassRole on the target plus cognito-identity:SetIdentityPoolRoles, so it can bind the target as a Cognito Identity Pool's (unauthenticated) role and then redeem temporary credentials for the target via GetId + GetCredentialsForIdentity. Because the target trusts cognito-identity.amazonaws.com (AssumeRoleWithWebIdentity) the binding is accepted; if the target is privileged this is full privilege escalation, reachable even by an anonymous caller.",
+   "fix": "Remove iam:PassRole / cognito-identity:SetIdentityPoolRoles; scope identity-pool roles and disable unauthenticated access.",
+   "tactic": "privilege-escalation",
+   "mitre": {
+    "id": "T1078.004",
+    "name": "Valid Accounts: Cloud Accounts"
+   },
+   "tier": 2,
+   "combination": true,
+   "references": [
+    "https://attack.mitre.org/techniques/T1078/004/"
+   ],
+   "url": "https://pathbreak.io/aws-privilege-escalation-map/cognito-identity-setidentitypoolroles-passrole"
+  },
+  {
+   "id": "organizations-createaccount-assume",
+   "title": "Create account and assume admin",
+   "needs_actions": [
+    "organizations:CreateAccount",
+    "sts:AssumeRole"
+   ],
+   "primary_action": "organizations:CreateAccount",
+   "service": "Organizations",
+   "category": "persistence",
+   "grants": "Can create a member account and assume its default admin role",
+   "why": "this principal can call organizations:CreateAccount to spin up a fresh member account whose default OrganizationAccountAccessRole trusts the management account, then assume into it as admin - durable, low-visibility persistence.",
+   "fix": "Restrict organizations:CreateAccount to a break-glass role; alarm on new account creation.",
+   "tactic": "persistence",
+   "mitre": {
+    "id": "T1136.003",
+    "name": "Create Account: Cloud Account"
+   },
+   "tier": 2,
+   "combination": true,
+   "references": [
+    "https://attack.mitre.org/techniques/T1136/003/"
+   ],
+   "url": "https://pathbreak.io/aws-privilege-escalation-map/organizations-createaccount-assume"
+  },
+  {
+   "id": "organizations-detachpolicy",
+   "title": "Detach SCP guardrail",
+   "needs_actions": [
+    "organizations:DetachPolicy"
+   ],
+   "primary_action": "organizations:DetachPolicy",
+   "service": "Organizations",
+   "category": "defense-evasion",
+   "grants": "Can detach an SCP guardrail from an account or OU",
+   "why": "this principal can call organizations:DetachPolicy to detach an SCP guardrail from an account or OU, removing an org-wide Deny the rest of the model relies on.",
+   "fix": "Restrict organizations:DetachPolicy to a break-glass management-account role; alarm on SCP detachment.",
+   "tactic": "defense-evasion",
+   "mitre": {
+    "id": "T1562.001",
+    "name": "Impair Defenses: Disable or Modify Tools"
+   },
+   "tier": 2,
+   "combination": false,
+   "references": [
+    "https://attack.mitre.org/techniques/T1562/001/"
+   ],
+   "url": "https://pathbreak.io/aws-privilege-escalation-map/organizations-detachpolicy"
+  },
+  {
+   "id": "s3-disable-bpa",
+   "title": "Disable S3 Block Public Access",
+   "needs_actions": [
+    "s3:PutBucketPublicAccessBlock"
+   ],
+   "primary_action": "s3:PutBucketPublicAccessBlock",
+   "service": "S3",
+   "category": "resource-policy-grant",
+   "grants": "Can disable Block Public Access, enabling a public policy or ACL to take effect",
+   "why": "this principal can call s3:PutBucketPublicAccessBlock on bucket the target to turn off Block Public Access, so a public bucket policy or ACL grant is no longer overridden and actually exposes the data.",
+   "fix": "Remove s3:PutBucketPublicAccessBlock / PutAccountPublicAccessBlock from the principal; keep account-level BPA on and deny changes via SCP.",
+   "tactic": "defense-evasion",
+   "mitre": {
+    "id": "T1562",
+    "name": "Impair Defenses"
+   },
+   "tier": 2,
+   "combination": false,
+   "references": [
+    "https://attack.mitre.org/techniques/T1562/"
+   ],
+   "url": "https://pathbreak.io/aws-privilege-escalation-map/s3-disable-bpa"
+  },
+  {
+   "id": "eks-createaccessentry-clusteradmin",
+   "title": "EKS access-entry cluster-admin",
+   "needs_actions": [
+    "eks:CreateAccessEntry",
+    "eks:AssociateAccessPolicy"
+   ],
+   "primary_action": "eks:CreateAccessEntry",
+   "service": "EKS",
+   "category": "self-escalation",
+   "grants": "Can map itself onto this EKS cluster as Kubernetes cluster-admin, reaching its AWS roles",
+   "why": "this principal can call eks:CreateAccessEntry to map its own IAM principal onto cluster the target, then eks:AssociateAccessPolicy (AmazonEKSClusterAdminPolicy) to become Kubernetes cluster-admin - of a cluster it had no prior access to. Cluster-admin can schedule a pod as any service account, reaching the node-group role, every IRSA role, and every Pod Identity role the cluster fronts.",
+   "fix": "Restrict eks:CreateAccessEntry / eks:AssociateAccessPolicy to a break-glass role; require CONFIG_MAP-only auth on sensitive clusters; alarm on new access entries.",
+   "tactic": "privilege-escalation",
+   "mitre": {
+    "id": "T1098.003",
+    "name": "Account Manipulation: Additional Cloud Roles"
+   },
+   "tier": 2,
+   "combination": true,
+   "references": [
+    "https://attack.mitre.org/techniques/T1098/003/"
+   ],
+   "url": "https://pathbreak.io/aws-privilege-escalation-map/eks-createaccessentry-clusteradmin"
+  },
+  {
+   "id": "iam-enroll-mfa-persistence",
+   "title": "Enroll attacker MFA on user",
+   "needs_actions": [
+    "iam:CreateVirtualMFADevice",
+    "iam:EnableMFADevice"
+   ],
+   "primary_action": "iam:EnableMFADevice",
+   "service": "IAM",
+   "category": "persistence",
+   "grants": "Can enroll an attacker-controlled MFA device on this user",
+   "why": "this principal can call iam:CreateVirtualMFADevice then iam:EnableMFADevice to bind an attacker-controlled MFA device to user the target, establishing persistence that survives credential rotation.",
+   "fix": "Remove iam:CreateVirtualMFADevice / iam:EnableMFADevice from the principal; alarm on new MFA enrolments.",
+   "tactic": "persistence",
+   "mitre": {
+    "id": "T1098.005",
+    "name": "Account Manipulation: Device Registration"
+   },
+   "tier": 2,
+   "combination": true,
+   "references": [
+    "https://attack.mitre.org/techniques/T1098/005/"
+   ],
+   "url": "https://pathbreak.io/aws-privilege-escalation-map/iam-enroll-mfa-persistence"
+  },
+  {
+   "id": "sso-permissionset-escalation",
+   "title": "Escalate Identity Center permission set",
+   "needs_actions": [
+    "sso:PutInlinePolicyToPermissionSet",
+    "sso:ProvisionPermissionSet"
+   ],
+   "primary_action": "sso:PutInlinePolicyToPermissionSet",
+   "service": "IAM Identity Center",
+   "category": "self-escalation",
+   "grants": "Can rewrite this Identity Center permission set to grant its provisioned role full admin",
+   "why": "this principal can call sso:PutInlinePolicyToPermissionSet to attach an inline *:* policy to the IAM Identity Center permission set provisioned as role the target, then sso:ProvisionPermissionSet to push it. AWS rewrites the AWSReservedSSO_* role's policy in EVERY account that permission set is assigned to, so a single API call turns a scoped federated role into an administrator org-wide, and the grant persists until the permission set is repaired.",
+   "fix": "Remove sso:PutInlinePolicyToPermissionSet / ProvisionPermissionSet from the principal; restrict Identity Center administration to a break-glass role.",
+   "tactic": "privilege-escalation",
+   "mitre": {
+    "id": "T1098.003",
+    "name": "Account Manipulation: Additional Cloud Roles"
+   },
+   "tier": 2,
+   "combination": true,
+   "references": [
+    "https://attack.mitre.org/techniques/T1098/003/"
+   ],
+   "url": "https://pathbreak.io/aws-privilege-escalation-map/sso-permissionset-escalation"
+  },
+  {
+   "id": "s3-putbucketacl-grant",
+   "title": "Grant bucket read via ACL",
+   "needs_actions": [
+    "s3:PutBucketAcl"
+   ],
+   "primary_action": "s3:PutBucketAcl",
+   "service": "S3",
+   "category": "resource-policy-grant",
+   "grants": "Can rewrite this bucket's ACL to grant public or attacker read",
+   "why": "this principal can call s3:PutBucketAcl on bucket the target to grant READ to AllUsers, AuthenticatedUsers, or an external canonical id, then read the objects. An alternate exposure path to the bucket-policy grant.",
+   "fix": "Remove s3:PutBucketAcl from the principal; enforce Object Ownership = BucketOwnerEnforced (disables ACLs) and Block Public Access.",
+   "tactic": "collection",
+   "mitre": {
+    "id": "T1530",
+    "name": "Data from Cloud Storage"
+   },
+   "tier": 2,
+   "combination": false,
+   "references": [
+    "https://attack.mitre.org/techniques/T1530/"
+   ],
+   "url": "https://pathbreak.io/aws-privilege-escalation-map/s3-putbucketacl-grant"
+  },
+  {
+   "id": "s3-putobjectacl-grant",
+   "title": "Grant object read via ACL",
+   "needs_actions": [
+    "s3:PutObjectAcl"
+   ],
+   "primary_action": "s3:PutObjectAcl",
+   "service": "S3",
+   "category": "resource-policy-grant",
+   "grants": "Can rewrite object ACLs to grant public or attacker read",
+   "why": "this principal can call s3:PutObjectAcl on objects in bucket the target to grant READ to AllUsers/AuthenticatedUsers/an external id, then read them.",
+   "fix": "Remove s3:PutObjectAcl from the principal; enforce Object Ownership = BucketOwnerEnforced and Block Public Access.",
+   "tactic": "collection",
+   "mitre": {
+    "id": "T1530",
+    "name": "Data from Cloud Storage"
+   },
+   "tier": 2,
+   "combination": false,
+   "references": [
+    "https://attack.mitre.org/techniques/T1530/"
+   ],
+   "url": "https://pathbreak.io/aws-privilege-escalation-map/s3-putobjectacl-grant"
+  },
+  {
+   "id": "organizations-putresourcepolicy",
+   "title": "Grant org access via resource policy",
+   "needs_actions": [
+    "organizations:PutResourcePolicy"
+   ],
+   "primary_action": "organizations:PutResourcePolicy",
+   "service": "Organizations",
+   "category": "resource-policy-grant",
+   "grants": "Can grant an external/member principal management access to the org",
+   "why": "this principal can call organizations:PutResourcePolicy to grant an external or member principal management access to the organization via its resource policy.",
+   "fix": "Restrict organizations:PutResourcePolicy to a break-glass management-account role.",
+   "tactic": "privilege-escalation",
+   "mitre": {
+    "id": "T1098",
+    "name": "Account Manipulation"
+   },
+   "tier": 2,
+   "combination": false,
+   "references": [
+    "https://attack.mitre.org/techniques/T1098/"
+   ],
+   "url": "https://pathbreak.io/aws-privilege-escalation-map/organizations-putresourcepolicy"
+  },
+  {
+   "id": "bedrock-agentcore-session-hijack",
+   "title": "Hijack Bedrock AgentCore interpreter role",
+   "needs_actions": [
+    "bedrock-agentcore:StartCodeInterpreterSession",
+    "bedrock-agentcore:InvokeCodeInterpreter"
+   ],
+   "primary_action": "bedrock-agentcore:InvokeCodeInterpreter",
+   "service": "Bedrock AgentCore",
+   "category": "hijack",
+   "grants": "Can invoke Python in this AgentCore interpreter and run it as its execution role",
+   "why": "this principal can call bedrock-agentcore:StartCodeInterpreterSession and InvokeCodeInterpreter on an existing Bedrock AgentCore code interpreter that already carries execution role the target, and invoke attacker-supplied Python in the session. The interpreter runs that Python in its MicroVM as the target, no iam:PassRole and no CreateCodeInterpreter needed, because the target is already bound to the interpreter. The Python reads the target's live credentials from the MicroVM metadata service or calls AWS directly; if the target is privileged this is full privilege escalation against an interpreter that was already trusted. Marked needs-verification because AgentCore is a brand-new 2025 service and this is a two-action edge.",
+   "fix": "Restrict bedrock-agentcore:StartCodeInterpreterSession / InvokeCodeInterpreter on interpreters that carry a privileged execution role; scope these actions to specific interpreter ARNs.",
+   "tactic": "privilege-escalation",
+   "mitre": {
+    "id": "T1578",
+    "name": "Modify Cloud Compute Infrastructure"
+   },
+   "tier": 2,
+   "combination": true,
+   "references": [
+    "https://attack.mitre.org/techniques/T1578/"
+   ],
+   "url": "https://pathbreak.io/aws-privilege-escalation-map/bedrock-agentcore-session-hijack"
+  },
+  {
+   "id": "codedeploy-createdeployment-hijack",
+   "title": "Hijack CodeDeploy target instance role",
+   "needs_actions": [
+    "codedeploy:CreateDeployment",
+    "codedeploy:RegisterApplicationRevision"
+   ],
+   "primary_action": "codedeploy:CreateDeployment",
+   "service": "CodeDeploy",
+   "category": "hijack",
+   "grants": "Can deploy a malicious revision and run a script as the target instances' role",
+   "why": "this principal can call codedeploy:CreateDeployment on an existing deployment group whose target EC2 instances already carry instance-profile role the target, deploying a revision whose appspec.yml lifecycle hook runs an attacker shell script as root on those instances. The script reads the target's live credentials from IMDS, no iam:PassRole needed, because the target is already bound to the boxes. If the target is privileged this is full privilege escalation against instances that were already trusted.",
+   "fix": "Restrict codedeploy:CreateDeployment on deployment groups whose target instances carry a privileged instance profile; review appspec lifecycle hooks.",
+   "tactic": "privilege-escalation",
+   "mitre": {
+    "id": "T1578",
+    "name": "Modify Cloud Compute Infrastructure"
+   },
+   "tier": 2,
+   "combination": true,
+   "references": [
+    "https://attack.mitre.org/techniques/T1578/"
+   ],
+   "url": "https://pathbreak.io/aws-privilege-escalation-map/codedeploy-createdeployment-hijack"
+  },
+  {
+   "id": "ec2-instance-connect-sendsshpublickey-hijack",
+   "title": "Hijack instance role via Instance Connect",
+   "needs_actions": [
+    "ec2-instance-connect:SendSSHPublicKey",
+    "ec2:DescribeInstances"
+   ],
+   "primary_action": "ec2-instance-connect:SendSSHPublicKey",
+   "service": "EC2 Instance Connect",
+   "category": "hijack",
+   "grants": "Can push an SSH key via Instance Connect and steal this instance's role",
+   "why": "this principal can call ec2-instance-connect:SendSSHPublicKey to inject an ephemeral SSH key onto a running instance that already carries instance-profile role the target, then SSH in over the network and read the target's live credentials from IMDS. Because the target is already bound to the box, a shell on it is enough to steal the role, no iam:PassRole needed. Unlike SSM this requires a reachable SSH port (22) on the instance, so it only works where the network path exists; if the target is privileged this is full privilege escalation against an instance that was already trusted.",
+   "fix": "Restrict ec2-instance-connect:SendSSHPublicKey to break-glass principals; close inbound port 22 and prefer SSM Session Manager.",
+   "tactic": "privilege-escalation",
+   "mitre": {
+    "id": "T1578",
+    "name": "Modify Cloud Compute Infrastructure"
+   },
+   "tier": 2,
+   "combination": true,
+   "references": [
+    "https://attack.mitre.org/techniques/T1578/"
+   ],
+   "url": "https://pathbreak.io/aws-privilege-escalation-map/ec2-instance-connect-sendsshpublickey-hijack"
+  },
+  {
+   "id": "ec2-launch-template-userdata-injection",
+   "title": "Inject user-data into EC2 launch template",
+   "needs_actions": [
+    "ec2:CreateLaunchTemplateVersion",
+    "ec2:ModifyLaunchTemplate"
+   ],
+   "primary_action": "ec2:CreateLaunchTemplateVersion",
+   "service": "EC2",
+   "category": "hijack",
+   "grants": "Can inject user-data into this launch template, run as its role on next launch",
+   "why": "this principal can call ec2:CreateLaunchTemplateVersion to publish a new version of an existing launch template carrying attacker-controlled user-data, then ec2:ModifyLaunchTemplate to set that version as the default, no iam:PassRole needed. The template already references instance-profile role the target, so any instance later launched from it (an Auto Scaling group scaling out, a fleet refresh, or a manual RunInstances) boots the attacker's user-data and runs it as the target, exposing the target's credentials via IMDS. If the target is privileged this is full privilege escalation against a template that was already trusted. NOTE: execution is DEFERRED to a future launch from the template.",
+   "fix": "Restrict ec2:CreateLaunchTemplateVersion and ec2:ModifyLaunchTemplate on launch templates that reference a privileged instance-profile role; prefer immutable/source-controlled templates.",
+   "tactic": "privilege-escalation",
+   "mitre": {
+    "id": "T1578",
+    "name": "Modify Cloud Compute Infrastructure"
+   },
+   "tier": 2,
+   "combination": true,
+   "references": [
+    "https://attack.mitre.org/techniques/T1578/"
+   ],
+   "url": "https://pathbreak.io/aws-privilege-escalation-map/ec2-launch-template-userdata-injection"
+  },
+  {
+   "id": "organizations-leaveorganization",
+   "title": "Leave the organization",
+   "needs_actions": [
+    "organizations:LeaveOrganization"
+   ],
+   "primary_action": "organizations:LeaveOrganization",
+   "service": "Organizations",
+   "category": "defense-evasion",
+   "grants": "Can remove the account from the org, escaping every SCP at once",
+   "why": "this principal can call organizations:LeaveOrganization to remove the account from the org, escaping every SCP that constrained it in one call.",
+   "fix": "Restrict organizations:LeaveOrganization to a break-glass role; deny for member accounts via SCP.",
+   "tactic": "defense-evasion",
+   "mitre": {
+    "id": "T1562.001",
+    "name": "Impair Defenses: Disable or Modify Tools"
+   },
+   "tier": 2,
+   "combination": false,
+   "references": [
+    "https://attack.mitre.org/techniques/T1562/001/"
+   ],
+   "url": "https://pathbreak.io/aws-privilege-escalation-map/organizations-leaveorganization"
+  },
+  {
+   "id": "ecs-executecommand-hijack",
+   "title": "Open ECS Exec shell",
+   "needs_actions": [
+    "ecs:ExecuteCommand"
+   ],
+   "primary_action": "ecs:ExecuteCommand",
+   "service": "ECS",
+   "category": "session-access",
+   "grants": "Can open an interactive ECS Exec shell inside this running container",
+   "why": "this principal can call ecs:ExecuteCommand to open an interactive shell inside running container the target via ECS Exec, no SSH key, no open security-group port, no iam:PassRole, bypassing the network path entirely. That yields code execution inside the container, from which this principal can read the task role's temporary credentials from the ECS task-metadata endpoint and pivot further into the account.",
+   "fix": "Restrict ecs:ExecuteCommand to break-glass principals; disable ECS Exec (enableExecuteCommand=false) on tasks that don't need it.",
+   "tactic": "lateral-movement",
+   "mitre": {
+    "id": "T1651",
+    "name": "Cloud Administration Command"
+   },
+   "tier": 2,
+   "combination": false,
+   "references": [
+    "https://attack.mitre.org/techniques/T1651/"
+   ],
+   "url": "https://pathbreak.io/aws-privilege-escalation-map/ecs-executecommand-hijack"
+  },
+  {
+   "id": "ssm-startsession",
+   "title": "Open SSM shell",
+   "needs_actions": [
+    "ssm:StartSession"
+   ],
+   "primary_action": "ssm:StartSession",
+   "service": "Systems Manager",
+   "category": "session-access",
+   "grants": "Can open an interactive SSM shell on this instance",
+   "why": "this principal can call ssm:StartSession to open an interactive shell on SSM-managed instance the target, no SSH key, no open security-group port, bypassing the network path entirely. That yields OS-level code execution on the target, from which this principal can read the instance's IAM role credentials and pivot further into the account.",
+   "fix": "Restrict ssm:StartSession to break-glass principals only.",
+   "tactic": "lateral-movement",
+   "mitre": {
+    "id": "T1651",
+    "name": "Cloud Administration Command"
+   },
+   "tier": 2,
+   "combination": false,
+   "references": [
+    "https://attack.mitre.org/techniques/T1651/"
+   ],
+   "url": "https://pathbreak.io/aws-privilege-escalation-map/ssm-startsession"
+  },
+  {
+   "id": "apprunner-passrole-create",
+   "title": "Pass role to App Runner",
+   "needs_actions": [
+    "iam:PassRole",
+    "apprunner:CreateService"
+   ],
+   "primary_action": "iam:PassRole",
+   "service": "IAM",
+   "category": "passrole-create",
+   "grants": "Can deploy an App Runner service with this role and run code as it",
+   "why": "this principal holds iam:PassRole on the target plus apprunner:CreateService, so it can deploy an App Runner service from an attacker-controlled image/source with the target as its instance role, the service's code runs with the target's permissions. Because the target trusts tasks.apprunner.amazonaws.com the pass is accepted; a privileged the target yields run-as-role code execution.",
+   "fix": "Remove iam:PassRole for this role or scope it with iam:PassedToService.",
+   "tactic": "privilege-escalation",
+   "mitre": {
+    "id": "T1648",
+    "name": "Serverless Execution"
+   },
+   "tier": 2,
+   "combination": true,
+   "references": [
+    "https://attack.mitre.org/techniques/T1648/"
+   ],
+   "url": "https://pathbreak.io/aws-privilege-escalation-map/apprunner-passrole-create"
+  },
+  {
+   "id": "autoscaling-passrole-create",
+   "title": "Pass role to Auto Scaling group",
+   "needs_actions": [
+    "iam:PassRole",
+    "autoscaling:CreateLaunchConfiguration",
+    "autoscaling:CreateAutoScalingGroup"
+   ],
+   "primary_action": "iam:PassRole",
+   "service": "IAM",
+   "category": "passrole-create",
+   "grants": "Can launch an Auto Scaling instance with this role and run code as it",
+   "why": "this principal holds iam:PassRole on the target plus autoscaling:CreateLaunchConfiguration and autoscaling:CreateAutoScalingGroup, so it can define a launch configuration that attaches the target as the instance profile and create an Auto Scaling group that boots an EC2 instance from it, the instance runs attacker-supplied user-data as the target and exposes the target's credentials via IMDS. Because the target trusts ec2.amazonaws.com the pass is accepted; if the target is privileged this is full account-level privilege escalation, the Auto Scaling control-plane variant of launching an instance.",
+   "fix": "Remove iam:PassRole for this role or scope it with iam:PassedToService.",
+   "tactic": "privilege-escalation",
+   "mitre": {
+    "id": "T1578.002",
+    "name": "Modify Cloud Compute Infrastructure: Create Cloud Instance"
+   },
+   "tier": 2,
+   "combination": true,
+   "references": [
+    "https://attack.mitre.org/techniques/T1578/002/"
+   ],
+   "url": "https://pathbreak.io/aws-privilege-escalation-map/autoscaling-passrole-create"
+  },
+  {
+   "id": "batch-passrole-create",
+   "title": "Pass role to AWS Batch",
+   "needs_actions": [
+    "iam:PassRole",
+    "batch:RegisterJobDefinition",
+    "batch:SubmitJob"
+   ],
+   "primary_action": "iam:PassRole",
+   "service": "IAM",
+   "category": "passrole-create",
+   "grants": "Can register and submit an AWS Batch job with this role and run a container as it",
+   "why": "this principal holds iam:PassRole on the target plus batch:RegisterJobDefinition and batch:SubmitJob, so it can register a Batch job definition with the target as its job role and an attacker-controlled container command, then submit a job, the container runs with the target's permissions and reads the target's credentials from the task-metadata endpoint. Because the target trusts the Batch execution service the pass is accepted; if the target is privileged this is full privilege escalation.",
+   "fix": "Remove iam:PassRole for this role or scope it with iam:PassedToService.",
+   "tactic": "privilege-escalation",
+   "mitre": {
+    "id": "T1610",
+    "name": "Deploy Container"
+   },
+   "tier": 2,
+   "combination": true,
+   "references": [
+    "https://attack.mitre.org/techniques/T1610/"
+   ],
+   "url": "https://pathbreak.io/aws-privilege-escalation-map/batch-passrole-create"
+  },
+  {
+   "id": "bedrock-agentcore-passrole-create",
+   "title": "Pass role to Bedrock AgentCore",
+   "needs_actions": [
+    "iam:PassRole",
+    "bedrock-agentcore:CreateCodeInterpreter",
+    "bedrock-agentcore:StartCodeInterpreterSession",
+    "bedrock-agentcore:InvokeCodeInterpreter"
+   ],
+   "primary_action": "iam:PassRole",
+   "service": "IAM",
+   "category": "passrole-create",
+   "grants": "Can create a Bedrock AgentCore interpreter with this role and run Python as it",
+   "why": "this principal holds iam:PassRole on the target plus bedrock-agentcore:CreateCodeInterpreter, StartCodeInterpreterSession and InvokeCodeInterpreter, so it can create a Bedrock AgentCore code interpreter with the target attached, open a session and invoke attacker-supplied Python, that Python runs in the AgentCore sandbox with the target's permissions and reads the target's live credentials from the MicroVM metadata service. Because the target trusts bedrock-agentcore.amazonaws.com the pass is accepted; if the target is privileged this is full privilege escalation via a new 2025 AI-runtime sink, which is why it is marked needs-verification.",
+   "fix": "Remove iam:PassRole for this role or scope it with iam:PassedToService.",
+   "tactic": "privilege-escalation",
+   "mitre": {
+    "id": "T1648",
+    "name": "Serverless Execution"
+   },
+   "tier": 2,
+   "combination": true,
+   "references": [
+    "https://attack.mitre.org/techniques/T1648/"
+   ],
+   "url": "https://pathbreak.io/aws-privilege-escalation-map/bedrock-agentcore-passrole-create"
+  },
+  {
+   "id": "braket-createjob-passrole",
+   "title": "Pass role to Braket",
+   "needs_actions": [
+    "iam:PassRole",
+    "braket:CreateJob"
+   ],
+   "primary_action": "iam:PassRole",
+   "service": "IAM",
+   "category": "passrole-create",
+   "grants": "Can create a Braket hybrid job with this role and run a container as it",
+   "why": "this principal holds iam:PassRole on the target plus braket:CreateJob, so it can create an Amazon Braket Hybrid Job with the target as its execution role and an attacker-controlled container/script, the script runs on Braket's managed ML infrastructure with the target's permissions and reads the target's credentials. Because the target trusts braket.amazonaws.com the pass is accepted; if the target is privileged this is full privilege escalation.",
+   "fix": "Remove iam:PassRole for this role or scope it with iam:PassedToService.",
+   "tactic": "privilege-escalation",
+   "mitre": {
+    "id": "T1648",
+    "name": "Serverless Execution"
+   },
+   "tier": 2,
+   "combination": true,
+   "references": [
+    "https://attack.mitre.org/techniques/T1648/"
+   ],
+   "url": "https://pathbreak.io/aws-privilege-escalation-map/braket-createjob-passrole"
+  },
+  {
+   "id": "cloudformation-passrole-create",
+   "title": "Pass role to CloudFormation",
+   "needs_actions": [
+    "iam:PassRole",
+    "cloudformation:CreateStack"
+   ],
+   "primary_action": "iam:PassRole",
+   "service": "IAM",
+   "category": "passrole-create",
+   "grants": "Can create a CloudFormation stack with this role as its service role",
+   "why": "this principal holds iam:PassRole on the target plus cloudformation:CreateStack, so it can create a stack that uses the target as its service role; CloudFormation then performs every action in the attacker's template with the target's permissions. Because the target trusts cloudformation.amazonaws.com the pass is accepted; a privileged the target lets the template provision admin resources, full privilege escalation.",
+   "fix": "Remove iam:PassRole for this role or scope it with iam:PassedToService.",
+   "tactic": "privilege-escalation",
+   "mitre": {
+    "id": "T1648",
+    "name": "Serverless Execution"
+   },
+   "tier": 2,
+   "combination": true,
+   "references": [
+    "https://attack.mitre.org/techniques/T1648/"
+   ],
+   "url": "https://pathbreak.io/aws-privilege-escalation-map/cloudformation-passrole-create"
+  },
+  {
+   "id": "cloudformation-passrole-create-stackset",
+   "title": "Pass role to CloudFormation StackSet",
+   "needs_actions": [
+    "iam:PassRole",
+    "cloudformation:CreateStackSet",
+    "cloudformation:CreateStackInstances"
+   ],
+   "primary_action": "iam:PassRole",
+   "service": "IAM",
+   "category": "passrole-create",
+   "grants": "Can create a CloudFormation StackSet with this role across accounts",
+   "why": "this principal holds iam:PassRole on the target plus cloudformation:CreateStackSet and cloudformation:CreateStackInstances, so it can create a StackSet with an attacker-authored template and the target as its execution role, then deploy stack instances; CloudFormation then provisions every resource in the template with the target's permissions across the target accounts. Because the target trusts cloudformation.amazonaws.com the pass is accepted; a privileged the target lets the template create admin resources, full privilege escalation, fanned out across accounts.",
+   "fix": "Remove iam:PassRole for this role or scope it with iam:PassedToService.",
+   "tactic": "privilege-escalation",
+   "mitre": {
+    "id": "T1648",
+    "name": "Serverless Execution"
+   },
+   "tier": 2,
+   "combination": true,
+   "references": [
+    "https://attack.mitre.org/techniques/T1648/"
+   ],
+   "url": "https://pathbreak.io/aws-privilege-escalation-map/cloudformation-passrole-create-stackset"
+  },
+  {
+   "id": "cloudformation-passrole-update-stackset",
+   "title": "Pass role to CloudFormation StackSet update",
+   "needs_actions": [
+    "iam:PassRole",
+    "cloudformation:UpdateStackSet"
+   ],
+   "primary_action": "iam:PassRole",
+   "service": "IAM",
+   "category": "passrole-create",
+   "grants": "Can update a CloudFormation StackSet with this role across accounts",
+   "why": "this principal holds iam:PassRole on the target plus cloudformation:UpdateStackSet, so it can update an existing StackSet with an attacker-authored template and the target as its execution role; on rollout CloudFormation provisions every resource in the template with the target's permissions across the StackSet's target accounts. Because the target trusts cloudformation.amazonaws.com the pass is accepted; a privileged the target lets the template create admin resources, full privilege escalation, fanned out across accounts, with no need to create a new StackSet.",
+   "fix": "Remove iam:PassRole for this role or scope it with iam:PassedToService.",
+   "tactic": "privilege-escalation",
+   "mitre": {
+    "id": "T1648",
+    "name": "Serverless Execution"
+   },
+   "tier": 2,
+   "combination": true,
+   "references": [
+    "https://attack.mitre.org/techniques/T1648/"
+   ],
+   "url": "https://pathbreak.io/aws-privilege-escalation-map/cloudformation-passrole-update-stackset"
+  },
+  {
+   "id": "codebuild-passrole-create",
+   "title": "Pass role to CodeBuild",
+   "needs_actions": [
+    "iam:PassRole",
+    "codebuild:CreateProject",
+    "codebuild:StartBuild"
+   ],
+   "primary_action": "iam:PassRole",
+   "service": "IAM",
+   "category": "passrole-create",
+   "grants": "Can create a CodeBuild project with this role and run shell commands as it",
+   "why": "this principal holds iam:PassRole on the target plus codebuild:CreateProject and codebuild:StartBuild, so it can define a build project whose buildspec runs arbitrary shell commands with the target as the service role, then start the build, the commands execute with the target's permissions and can exfiltrate its credentials. Because the target trusts codebuild.amazonaws.com the pass is accepted; a privileged the target is full privilege escalation.",
+   "fix": "Remove iam:PassRole for this role or scope it with iam:PassedToService.",
+   "tactic": "privilege-escalation",
+   "mitre": {
+    "id": "T1648",
+    "name": "Serverless Execution"
+   },
+   "tier": 2,
+   "combination": true,
+   "references": [
+    "https://attack.mitre.org/techniques/T1648/"
+   ],
+   "url": "https://pathbreak.io/aws-privilege-escalation-map/codebuild-passrole-create"
+  },
+  {
+   "id": "codebuild-passrole-create-batch",
+   "title": "Pass role to CodeBuild (batch)",
+   "needs_actions": [
+    "iam:PassRole",
+    "codebuild:CreateProject",
+    "codebuild:StartBuildBatch"
+   ],
+   "primary_action": "iam:PassRole",
+   "service": "IAM",
+   "category": "passrole-create",
+   "grants": "Can create a CodeBuild project with this role and run a batch build as it",
+   "why": "this principal holds iam:PassRole on the target plus codebuild:CreateProject and codebuild:StartBuildBatch, so it can define a build project whose buildspec runs arbitrary shell commands with the target as the service role, then start a batch build, the commands execute with the target's permissions and can exfiltrate its credentials. Because the target trusts codebuild.amazonaws.com the pass is accepted; a privileged the target is full privilege escalation.",
+   "fix": "Remove iam:PassRole for this role or scope it with iam:PassedToService.",
+   "tactic": "privilege-escalation",
+   "mitre": {
+    "id": "T1648",
+    "name": "Serverless Execution"
+   },
+   "tier": 2,
+   "combination": true,
+   "references": [
+    "https://attack.mitre.org/techniques/T1648/"
+   ],
+   "url": "https://pathbreak.io/aws-privilege-escalation-map/codebuild-passrole-create-batch"
+  },
+  {
+   "id": "datapipeline-passrole-create",
+   "title": "Pass role to Data Pipeline",
+   "needs_actions": [
+    "iam:PassRole",
+    "datapipeline:CreatePipeline",
+    "datapipeline:PutPipelineDefinition",
+    "datapipeline:ActivatePipeline"
+   ],
+   "primary_action": "iam:PassRole",
+   "service": "IAM",
+   "category": "passrole-create",
+   "grants": "Can create a Data Pipeline with this role and run shell activities as it",
+   "why": "this principal holds iam:PassRole on the target plus datapipeline:CreatePipeline, PutPipelineDefinition and ActivatePipeline, so it can define and activate a Data Pipeline that runs shell/EC2 activities with the target as its role, those activities execute with the target's permissions. Because the target trusts datapipeline.amazonaws.com the pass is accepted; a legacy but valid run-as-role escalation, marked needs-verification.",
+   "fix": "Remove iam:PassRole for this role or scope it with iam:PassedToService.",
+   "tactic": "privilege-escalation",
+   "mitre": {
+    "id": "T1648",
+    "name": "Serverless Execution"
+   },
+   "tier": 2,
+   "combination": true,
+   "references": [
+    "https://attack.mitre.org/techniques/T1648/"
+   ],
+   "url": "https://pathbreak.io/aws-privilege-escalation-map/datapipeline-passrole-create"
+  },
+  {
+   "id": "ec2-run-passrole",
+   "title": "Pass role to EC2",
+   "needs_actions": [
+    "iam:PassRole",
+    "ec2:RunInstances"
+   ],
+   "primary_action": "iam:PassRole",
+   "service": "IAM",
+   "category": "passrole-create",
+   "grants": "Can launch an EC2 instance with this role and run code as it",
+   "why": "this principal holds iam:PassRole on the target together with ec2:RunInstances, so it can launch an EC2 instance with the target as its instance-profile role and run attacker-chosen code (user-data, SSM, or interactive login) as the target. Because the target trusts ec2.amazonaws.com the pass is accepted; the new box exposes the target's credentials via IMDS, so a privileged the target means full account-level privilege escalation.",
+   "fix": "Remove iam:PassRole for this role or scope it with iam:PassedToService.",
+   "tactic": "privilege-escalation",
+   "mitre": {
+    "id": "T1578.002",
+    "name": "Modify Cloud Compute Infrastructure: Create Cloud Instance"
+   },
+   "tier": 2,
+   "combination": true,
+   "references": [
+    "https://attack.mitre.org/techniques/T1578/002/"
+   ],
+   "url": "https://pathbreak.io/aws-privilege-escalation-map/ec2-run-passrole"
+  },
+  {
+   "id": "ec2-spot-passrole",
+   "title": "Pass role to EC2 spot instance",
+   "needs_actions": [
+    "iam:PassRole",
+    "ec2:RequestSpotInstances"
+   ],
+   "primary_action": "iam:PassRole",
+   "service": "IAM",
+   "category": "passrole-create",
+   "grants": "Can request a spot EC2 instance with this role and run code as it",
+   "why": "this principal holds iam:PassRole on the target together with ec2:RequestSpotInstances, so it can request a spot EC2 instance with the target as its instance-profile role and run attacker-chosen code (user-data, SSM, or interactive login) as the target. Because the target trusts ec2.amazonaws.com the pass is accepted; the new spot box exposes the target's credentials via IMDS, so a privileged the target means full account-level privilege escalation, the spot-fleet variant of launching an on-demand instance.",
+   "fix": "Remove iam:PassRole for this role or scope it with iam:PassedToService.",
+   "tactic": "privilege-escalation",
+   "mitre": {
+    "id": "T1578.002",
+    "name": "Modify Cloud Compute Infrastructure: Create Cloud Instance"
+   },
+   "tier": 2,
+   "combination": true,
+   "references": [
+    "https://attack.mitre.org/techniques/T1578/002/"
+   ],
+   "url": "https://pathbreak.io/aws-privilege-escalation-map/ec2-spot-passrole"
+  },
+  {
+   "id": "ecs-createservice-passrole",
+   "title": "Pass role to ECS service",
+   "needs_actions": [
+    "iam:PassRole",
+    "ecs:RegisterTaskDefinition",
+    "ecs:CreateService"
+   ],
+   "primary_action": "iam:PassRole",
+   "service": "IAM",
+   "category": "passrole-create",
+   "grants": "Can create an ECS Fargate service with this role and run a container as it",
+   "why": "this principal holds iam:PassRole on the target plus ecs:RegisterTaskDefinition and ecs:CreateService, so it can register a task definition using an attacker-controlled container image with the target as the task role and launch it as a long-running Fargate service, the container then executes with the target's permissions and can read the target's credentials from the task-metadata endpoint. Because the target trusts ecs-tasks.amazonaws.com the pass is accepted; a privileged the target yields run-as-role code execution.",
+   "fix": "Remove iam:PassRole for this role or scope it with iam:PassedToService.",
+   "tactic": "privilege-escalation",
+   "mitre": {
+    "id": "T1610",
+    "name": "Deploy Container"
+   },
+   "tier": 2,
+   "combination": true,
+   "references": [
+    "https://attack.mitre.org/techniques/T1610/"
+   ],
+   "url": "https://pathbreak.io/aws-privilege-escalation-map/ecs-createservice-passrole"
+  },
+  {
+   "id": "ecs-runtask-passrole",
+   "title": "Pass role to ECS task",
+   "needs_actions": [
+    "iam:PassRole",
+    "ecs:RegisterTaskDefinition",
+    "ecs:RunTask"
+   ],
+   "primary_action": "iam:PassRole",
+   "service": "IAM",
+   "category": "passrole-create",
+   "grants": "Can register and run an ECS task with this role and run a container as it",
+   "why": "this principal holds iam:PassRole on the target plus ecs:RegisterTaskDefinition and ecs:RunTask, so it can register a task definition using an attacker-controlled container image with the target as the task role and run it, the container then executes with the target's permissions and can read the target's credentials from the task-metadata endpoint. Because the target trusts ecs-tasks.amazonaws.com the pass is accepted; a privileged the target yields run-as-role code execution.",
+   "fix": "Remove iam:PassRole for this role or scope it with iam:PassedToService.",
+   "tactic": "privilege-escalation",
+   "mitre": {
+    "id": "T1610",
+    "name": "Deploy Container"
+   },
+   "tier": 2,
+   "combination": true,
+   "references": [
+    "https://attack.mitre.org/techniques/T1610/"
+   ],
+   "url": "https://pathbreak.io/aws-privilege-escalation-map/ecs-runtask-passrole"
+  },
+  {
+   "id": "ecs-runtask-override-passrole",
+   "title": "Pass role to ECS task (RunTask override)",
+   "needs_actions": [
+    "iam:PassRole",
+    "ecs:RunTask"
+   ],
+   "primary_action": "iam:PassRole",
+   "service": "IAM",
+   "category": "passrole-create",
+   "grants": "Can run an ECS task with this role via taskRoleArn override and run a container as it",
+   "why": "this principal holds iam:PassRole on the target plus ecs:RunTask, so it can run an existing ECS task definition with overrides.taskRoleArn set to the target and an attacker container command, no ecs:RegisterTaskDefinition needed. The task executes the command with the target's permissions and reads the target's credentials from the task-metadata endpoint. Because the target trusts ecs-tasks.amazonaws.com the pass is accepted; if the target is privileged this is full privilege escalation, a lower-permission variant of register-then-run.",
+   "fix": "Remove iam:PassRole for this role or scope it with iam:PassedToService; deny taskRoleArn/command overrides on RunTask.",
+   "tactic": "privilege-escalation",
+   "mitre": {
+    "id": "T1610",
+    "name": "Deploy Container"
+   },
+   "tier": 2,
+   "combination": true,
+   "references": [
+    "https://attack.mitre.org/techniques/T1610/"
+   ],
+   "url": "https://pathbreak.io/aws-privilege-escalation-map/ecs-runtask-override-passrole"
+  },
+  {
+   "id": "ecs-starttask-override-passrole",
+   "title": "Pass role to ECS task (StartTask override)",
+   "needs_actions": [
+    "iam:PassRole",
+    "ecs:StartTask"
+   ],
+   "primary_action": "iam:PassRole",
+   "service": "IAM",
+   "category": "passrole-create",
+   "grants": "Can start an ECS task with this role via taskRoleArn override and run a container as it",
+   "why": "this principal holds iam:PassRole on the target plus ecs:StartTask, so it can start an existing ECS task definition on an EC2 container instance with overrides.taskRoleArn set to the target and an attacker container command, no ecs:RegisterTaskDefinition needed. The task executes the command with the target's permissions and reads the target's credentials from the task-metadata endpoint. Because the target trusts ecs-tasks.amazonaws.com the pass is accepted; if the target is privileged this is full privilege escalation.",
+   "fix": "Remove iam:PassRole for this role or scope it with iam:PassedToService; deny taskRoleArn/command overrides on StartTask.",
+   "tactic": "privilege-escalation",
+   "mitre": {
+    "id": "T1610",
+    "name": "Deploy Container"
+   },
+   "tier": 2,
+   "combination": true,
+   "references": [
+    "https://attack.mitre.org/techniques/T1610/"
+   ],
+   "url": "https://pathbreak.io/aws-privilege-escalation-map/ecs-starttask-override-passrole"
+  },
+  {
+   "id": "ecs-starttask-passrole",
+   "title": "Pass role to ECS task on EC2",
+   "needs_actions": [
+    "iam:PassRole",
+    "ecs:RegisterTaskDefinition",
+    "ecs:StartTask"
+   ],
+   "primary_action": "iam:PassRole",
+   "service": "IAM",
+   "category": "passrole-create",
+   "grants": "Can start an ECS task on EC2 with this role and run a container as it",
+   "why": "this principal holds iam:PassRole on the target plus ecs:RegisterTaskDefinition and ecs:StartTask, so it can register a task definition using an attacker-controlled container image with the target as the task role and start it on an existing EC2 container instance, the container then executes with the target's permissions and can read the target's credentials from the task-metadata endpoint. Because the target trusts ecs-tasks.amazonaws.com the pass is accepted; a privileged the target yields run-as-role code execution.",
+   "fix": "Remove iam:PassRole for this role or scope it with iam:PassedToService.",
+   "tactic": "privilege-escalation",
+   "mitre": {
+    "id": "T1610",
+    "name": "Deploy Container"
+   },
+   "tier": 2,
+   "combination": true,
+   "references": [
+    "https://attack.mitre.org/techniques/T1610/"
+   ],
+   "url": "https://pathbreak.io/aws-privilege-escalation-map/ecs-starttask-passrole"
+  },
+  {
+   "id": "elasticbeanstalk-passrole-create",
+   "title": "Pass role to Elastic Beanstalk",
+   "needs_actions": [
+    "iam:PassRole",
+    "elasticbeanstalk:CreateApplicationVersion",
+    "elasticbeanstalk:CreateEnvironment"
+   ],
+   "primary_action": "iam:PassRole",
+   "service": "IAM",
+   "category": "passrole-create",
+   "grants": "Can deploy an Elastic Beanstalk environment with this role and run code as it",
+   "why": "this principal holds iam:PassRole on the target plus elasticbeanstalk:CreateApplicationVersion and elasticbeanstalk:CreateEnvironment, so it can deploy an Elastic Beanstalk application to an environment that provisions an EC2 instance with the target as its instance profile, the attacker's application code (or a shell on the box) runs as the target and reads the target's credentials via IMDS. Because the target trusts ec2.amazonaws.com the pass is accepted; if the target is privileged this is full account-level privilege escalation, the PaaS variant of launching an instance.",
+   "fix": "Remove iam:PassRole for this role or scope it with iam:PassedToService.",
+   "tactic": "privilege-escalation",
+   "mitre": {
+    "id": "T1578.002",
+    "name": "Modify Cloud Compute Infrastructure: Create Cloud Instance"
+   },
+   "tier": 2,
+   "combination": true,
+   "references": [
+    "https://attack.mitre.org/techniques/T1578/002/"
+   ],
+   "url": "https://pathbreak.io/aws-privilege-escalation-map/elasticbeanstalk-passrole-create"
+  },
+  {
+   "id": "emr-runjobflow-passrole",
+   "title": "Pass role to EMR cluster",
+   "needs_actions": [
+    "iam:PassRole",
+    "elasticmapreduce:RunJobFlow"
+   ],
+   "primary_action": "iam:PassRole",
+   "service": "IAM",
+   "category": "passrole-create",
+   "grants": "Can launch an EMR cluster with this role and run a step as it",
+   "why": "this principal holds iam:PassRole on the target plus elasticmapreduce:RunJobFlow, so it can launch an EMR cluster with the target as its EC2 instance-profile (JobFlowRole) and run an attacker-controlled step on the cluster's EC2 master, the step executes with the target's permissions and reads the target's credentials from IMDS. Because the target trusts ec2.amazonaws.com the pass is accepted; if the target is privileged this is full privilege escalation, the EMR variant of launching an EC2 instance with a role.",
+   "fix": "Remove iam:PassRole for this role or scope it with iam:PassedToService.",
+   "tactic": "privilege-escalation",
+   "mitre": {
+    "id": "T1578.002",
+    "name": "Modify Cloud Compute Infrastructure: Create Cloud Instance"
+   },
+   "tier": 2,
+   "combination": true,
+   "references": [
+    "https://attack.mitre.org/techniques/T1578/002/"
+   ],
+   "url": "https://pathbreak.io/aws-privilege-escalation-map/emr-runjobflow-passrole"
+  },
+  {
+   "id": "emr-serverless-passrole",
+   "title": "Pass role to EMR Serverless",
+   "needs_actions": [
+    "iam:PassRole",
+    "emr-serverless:CreateApplication",
+    "emr-serverless:StartJobRun"
+   ],
+   "primary_action": "iam:PassRole",
+   "service": "IAM",
+   "category": "passrole-create",
+   "grants": "Can run an EMR Serverless Spark job with this role and run code as it",
+   "why": "this principal holds iam:PassRole on the target plus emr-serverless:CreateApplication and emr-serverless:StartJobRun, so it can create an EMR Serverless Spark application and start a job run with the target as the execution role and attacker-controlled job code, the Spark code runs with the target's permissions and reads the target's credentials. Because the target trusts emr-serverless.amazonaws.com the pass is accepted; if the target is privileged this is full privilege escalation, fully serverless (no EC2 to manage).",
+   "fix": "Remove iam:PassRole for this role or scope it with iam:PassedToService.",
+   "tactic": "privilege-escalation",
+   "mitre": {
+    "id": "T1648",
+    "name": "Serverless Execution"
+   },
+   "tier": 2,
+   "combination": true,
+   "references": [
+    "https://attack.mitre.org/techniques/T1648/"
+   ],
+   "url": "https://pathbreak.io/aws-privilege-escalation-map/emr-serverless-passrole"
+  },
+  {
+   "id": "scheduler-passrole-create",
+   "title": "Pass role to EventBridge Scheduler",
+   "needs_actions": [
+    "iam:PassRole",
+    "scheduler:CreateSchedule"
+   ],
+   "primary_action": "iam:PassRole",
+   "service": "IAM",
+   "category": "passrole-create",
+   "grants": "Can create an EventBridge Scheduler that calls AWS directly as this role",
+   "why": "this principal holds iam:PassRole on the target plus scheduler:CreateSchedule, so it can create an EventBridge Scheduler schedule with the target as its target role and a universal target (arn:aws:scheduler:::aws-sdk:*) that calls any AWS SDK API directly as the target, no Lambda, EC2, or container needed. Because the target trusts scheduler.amazonaws.com the pass is accepted; if the target is privileged this is full privilege escalation in a single create call.",
+   "fix": "Remove iam:PassRole for this role or scope it with iam:PassedToService.",
+   "tactic": "privilege-escalation",
+   "mitre": {
+    "id": "T1648",
+    "name": "Serverless Execution"
+   },
+   "tier": 2,
+   "combination": true,
+   "references": [
+    "https://attack.mitre.org/techniques/T1648/"
+   ],
+   "url": "https://pathbreak.io/aws-privilege-escalation-map/scheduler-passrole-create"
+  },
+  {
+   "id": "gamelift-passrole-create",
+   "title": "Pass role to GameLift fleet",
+   "needs_actions": [
+    "iam:PassRole",
+    "gamelift:CreateBuild",
+    "gamelift:CreateFleet"
+   ],
+   "primary_action": "iam:PassRole",
+   "service": "IAM",
+   "category": "passrole-create",
+   "grants": "Can launch a GameLift fleet with this role and run a server process as it",
+   "why": "this principal holds iam:PassRole on the target plus gamelift:CreateBuild and gamelift:CreateFleet, so it can upload an attacker-controlled game-server build and launch a fleet with the target as its EC2 instance role, the server process runs on the fleet's EC2 with the target's permissions and reads the target's credentials from the instance credential provider. Because the target trusts ec2.amazonaws.com the pass is accepted; if the target is privileged this is full privilege escalation.",
+   "fix": "Remove iam:PassRole for this role or scope it with iam:PassedToService.",
+   "tactic": "privilege-escalation",
+   "mitre": {
+    "id": "T1578.002",
+    "name": "Modify Cloud Compute Infrastructure: Create Cloud Instance"
+   },
+   "tier": 2,
+   "combination": true,
+   "references": [
+    "https://attack.mitre.org/techniques/T1578/002/"
+   ],
+   "url": "https://pathbreak.io/aws-privilege-escalation-map/gamelift-passrole-create"
+  },
+  {
+   "id": "glue-passrole-create",
+   "title": "Pass role to Glue",
+   "needs_actions": [
+    "iam:PassRole",
+    "glue:CreateDevEndpoint"
+   ],
+   "primary_action": "iam:PassRole",
+   "service": "IAM",
+   "category": "passrole-create",
+   "grants": "Can create a Glue dev endpoint with this role and run an interactive session as it",
+   "why": "this principal holds iam:PassRole on the target plus glue:CreateDevEndpoint, so it can create a Glue development endpoint assigned the target as its role and obtain an interactive session that runs with the target's permissions. Because the target trusts glue.amazonaws.com the pass is accepted; a privileged the target yields run-as-role code execution and credential theft.",
+   "fix": "Remove iam:PassRole for this role or scope it with iam:PassedToService.",
+   "tactic": "privilege-escalation",
+   "mitre": {
+    "id": "T1648",
+    "name": "Serverless Execution"
+   },
+   "tier": 2,
+   "combination": true,
+   "references": [
+    "https://attack.mitre.org/techniques/T1648/"
+   ],
+   "url": "https://pathbreak.io/aws-privilege-escalation-map/glue-passrole-create"
+  },
+  {
+   "id": "glue-session-passrole",
+   "title": "Pass role to Glue interactive session",
+   "needs_actions": [
+    "iam:PassRole",
+    "glue:CreateSession",
+    "glue:RunStatement"
+   ],
+   "primary_action": "iam:PassRole",
+   "service": "IAM",
+   "category": "passrole-create",
+   "grants": "Can create a Glue interactive session with this role and run Python as it",
+   "why": "this principal holds iam:PassRole on the target plus glue:CreateSession and glue:RunStatement, so it can create a Glue Interactive Session with the target attached and run arbitrary Python (boto3) in it, the code executes with the target's permissions, which Glue injects automatically. Because the target trusts glue.amazonaws.com the pass is accepted; if the target is privileged this is full privilege escalation, with no Glue job or S3 script required.",
+   "fix": "Remove iam:PassRole for this role or scope it with iam:PassedToService.",
+   "tactic": "privilege-escalation",
+   "mitre": {
+    "id": "T1648",
+    "name": "Serverless Execution"
+   },
+   "tier": 2,
+   "combination": true,
+   "references": [
+    "https://attack.mitre.org/techniques/T1648/"
+   ],
+   "url": "https://pathbreak.io/aws-privilege-escalation-map/glue-session-passrole"
+  },
+  {
+   "id": "glue-createjob-passrole",
+   "title": "Pass role to Glue job",
+   "needs_actions": [
+    "iam:PassRole",
+    "glue:CreateJob",
+    "glue:StartJobRun"
+   ],
+   "primary_action": "iam:PassRole",
+   "service": "IAM",
+   "category": "passrole-create",
+   "grants": "Can create a Glue job with this role and run attacker code as it",
+   "why": "this principal holds iam:PassRole on the target plus glue:CreateJob and glue:StartJobRun, so it can create a Glue job whose script is attacker-controlled code with the target attached as the job's role, then start a job run, the script executes with the target's permissions and can read the target's credentials or modify IAM directly. Because the target trusts glue.amazonaws.com the pass is accepted; a privileged the target is full privilege escalation (a cost-effective alternative to a Glue dev endpoint).",
+   "fix": "Remove iam:PassRole for this role or scope it with iam:PassedToService.",
+   "tactic": "privilege-escalation",
+   "mitre": {
+    "id": "T1648",
+    "name": "Serverless Execution"
+   },
+   "tier": 2,
+   "combination": true,
+   "references": [
+    "https://attack.mitre.org/techniques/T1648/"
+   ],
+   "url": "https://pathbreak.io/aws-privilege-escalation-map/glue-createjob-passrole"
+  },
+  {
+   "id": "glue-createjob-trigger-passrole",
+   "title": "Pass role to Glue job (scheduled)",
+   "needs_actions": [
+    "iam:PassRole",
+    "glue:CreateJob",
+    "glue:CreateTrigger"
+   ],
+   "primary_action": "iam:PassRole",
+   "service": "IAM",
+   "category": "passrole-create",
+   "grants": "Can create a scheduled Glue job with this role and run code as it",
+   "why": "this principal holds iam:PassRole on the target plus glue:CreateJob and glue:CreateTrigger, so it can create a Glue job whose script is attacker-controlled code with the target attached as the job's role, then create a scheduled trigger that runs the job automatically, the script executes with the target's permissions. Because the target trusts glue.amazonaws.com the pass is accepted; a privileged the target is full privilege escalation, and the schedule re-executes the code persistently even after remediation attempts.",
+   "fix": "Remove iam:PassRole for this role or scope it with iam:PassedToService.",
+   "tactic": "privilege-escalation",
+   "mitre": {
+    "id": "T1648",
+    "name": "Serverless Execution"
+   },
+   "tier": 2,
+   "combination": true,
+   "references": [
+    "https://attack.mitre.org/techniques/T1648/"
+   ],
+   "url": "https://pathbreak.io/aws-privilege-escalation-map/glue-createjob-trigger-passrole"
+  },
+  {
+   "id": "glue-updatejob-passrole",
+   "title": "Pass role to Glue job (update)",
+   "needs_actions": [
+    "iam:PassRole",
+    "glue:UpdateJob",
+    "glue:StartJobRun"
+   ],
+   "primary_action": "iam:PassRole",
+   "service": "IAM",
+   "category": "passrole-create",
+   "grants": "Can hijack an existing Glue job with this role and run code as it",
+   "why": "this principal holds iam:PassRole on the target plus glue:UpdateJob and glue:StartJobRun, so it can modify an existing Glue job to replace its script with attacker-controlled code and assign the target as the job's role, then start a job run, the script executes with the target's permissions and can read the target's credentials or modify IAM directly. Because the target trusts glue.amazonaws.com the pass is accepted; reusing an existing job is stealthier than creating one, and a privileged the target is full privilege escalation.",
+   "fix": "Remove iam:PassRole for this role or scope it with iam:PassedToService.",
+   "tactic": "privilege-escalation",
+   "mitre": {
+    "id": "T1648",
+    "name": "Serverless Execution"
+   },
+   "tier": 2,
+   "combination": true,
+   "references": [
+    "https://attack.mitre.org/techniques/T1648/"
+   ],
+   "url": "https://pathbreak.io/aws-privilege-escalation-map/glue-updatejob-passrole"
+  },
+  {
+   "id": "glue-updatejob-trigger-passrole",
+   "title": "Pass role to Glue job (update, scheduled)",
+   "needs_actions": [
+    "iam:PassRole",
+    "glue:UpdateJob",
+    "glue:CreateTrigger"
+   ],
+   "primary_action": "iam:PassRole",
+   "service": "IAM",
+   "category": "passrole-create",
+   "grants": "Can rewrite and schedule a Glue job with this role and run code as it",
+   "why": "this principal holds iam:PassRole on the target plus glue:UpdateJob and glue:CreateTrigger, so it can modify an existing Glue job to replace its script with attacker-controlled code and assign the target as the job's role, then create a scheduled trigger that runs the job automatically, the script executes with the target's permissions. Because the target trusts glue.amazonaws.com the pass is accepted; this combines the stealth of reusing an existing job with a schedule that re-executes the code persistently even after remediation attempts, and a privileged the target is full privilege escalation.",
+   "fix": "Remove iam:PassRole for this role or scope it with iam:PassedToService.",
+   "tactic": "privilege-escalation",
+   "mitre": {
+    "id": "T1648",
+    "name": "Serverless Execution"
+   },
+   "tier": 2,
+   "combination": true,
+   "references": [
+    "https://attack.mitre.org/techniques/T1648/"
+   ],
+   "url": "https://pathbreak.io/aws-privilege-escalation-map/glue-updatejob-trigger-passrole"
+  },
+  {
+   "id": "omics-passrole-create",
+   "title": "Pass role to HealthOmics",
+   "needs_actions": [
+    "iam:PassRole",
+    "omics:CreateWorkflow",
+    "omics:StartRun"
+   ],
+   "primary_action": "iam:PassRole",
+   "service": "IAM",
+   "category": "passrole-create",
+   "grants": "Can create a HealthOmics workflow with this role and run a task as it",
+   "why": "this principal holds iam:PassRole on the target plus omics:CreateWorkflow and omics:StartRun, so it can create an AWS HealthOmics workflow whose task runs as the target and start a run passing the target as the execution role, the task executes with the target's permissions and exfiltrates the target's credentials (or calls AWS directly). Because the target trusts omics.amazonaws.com the pass is accepted; if the target is privileged this is full privilege escalation.",
+   "fix": "Remove iam:PassRole for this role or scope it with iam:PassedToService.",
+   "tactic": "privilege-escalation",
+   "mitre": {
+    "id": "T1648",
+    "name": "Serverless Execution"
+   },
+   "tier": 2,
+   "combination": true,
+   "references": [
+    "https://attack.mitre.org/techniques/T1648/"
+   ],
+   "url": "https://pathbreak.io/aws-privilege-escalation-map/omics-passrole-create"
+  },
+  {
+   "id": "imagebuilder-passrole-create",
+   "title": "Pass role to Image Builder",
+   "needs_actions": [
+    "iam:PassRole",
+    "imagebuilder:CreateComponent",
+    "imagebuilder:CreateImageRecipe",
+    "imagebuilder:CreateInfrastructureConfiguration",
+    "imagebuilder:CreateImage"
+   ],
+   "primary_action": "iam:PassRole",
+   "service": "IAM",
+   "category": "passrole-create",
+   "grants": "Can build an EC2 Image Builder pipeline with this role and run shell commands as it",
+   "why": "this principal holds iam:PassRole on the target plus the EC2 Image Builder create actions (component, recipe, infrastructure configuration, image), so it can build a pipeline whose component runs attacker shell commands on an EC2 build instance with the target as its instance profile, the commands execute with the target's permissions and read the target's credentials from IMDS. Because the target trusts ec2.amazonaws.com the pass is accepted; if the target is privileged this is full privilege escalation.",
+   "fix": "Remove iam:PassRole for this role or scope it with iam:PassedToService.",
+   "tactic": "privilege-escalation",
+   "mitre": {
+    "id": "T1578.002",
+    "name": "Modify Cloud Compute Infrastructure: Create Cloud Instance"
+   },
+   "tier": 2,
+   "combination": true,
+   "references": [
+    "https://attack.mitre.org/techniques/T1578/002/"
+   ],
+   "url": "https://pathbreak.io/aws-privilege-escalation-map/imagebuilder-passrole-create"
+  },
+  {
+   "id": "lambda-passrole-create",
+   "title": "Pass role to Lambda",
+   "needs_actions": [
+    "iam:PassRole",
+    "lambda:CreateFunction"
+   ],
+   "primary_action": "iam:PassRole",
+   "service": "IAM",
+   "category": "passrole-create",
+   "grants": "Can pass this role to a new Lambda function and run code as it",
+   "why": "this principal holds iam:PassRole on the target together with lambda:CreateFunction, so it can create a new Lambda function with the target attached and invoke it, the function's code then runs with the target's permissions. Because the target trusts lambda.amazonaws.com AWS accepts the pass; if the target is privileged this is full privilege escalation (arbitrary run-as-role code execution from a single create+invoke).",
+   "fix": "Remove iam:PassRole for this role or scope it with iam:PassedToService.",
+   "tactic": "privilege-escalation",
+   "mitre": {
+    "id": "T1648",
+    "name": "Serverless Execution"
+   },
+   "tier": 2,
+   "combination": true,
+   "references": [
+    "https://attack.mitre.org/techniques/T1648/"
+   ],
+   "url": "https://pathbreak.io/aws-privilege-escalation-map/lambda-passrole-create"
+  },
+  {
+   "id": "kinesisanalytics-passrole-create",
+   "title": "Pass role to Managed Flink",
+   "needs_actions": [
+    "iam:PassRole",
+    "kinesisanalytics:CreateApplication",
+    "kinesisanalytics:StartApplication"
+   ],
+   "primary_action": "iam:PassRole",
+   "service": "IAM",
+   "category": "passrole-create",
+   "grants": "Can create a Managed Flink application with this role and run code as it",
+   "why": "this principal holds iam:PassRole on the target plus kinesisanalytics:CreateApplication and kinesisanalytics:StartApplication, so it can create a Managed Apache Flink application with the target as its execution role and an attacker-controlled JAR, then start it, the Flink code runs with the target's permissions and reads the target's credentials. Because the target trusts kinesisanalytics.amazonaws.com the pass is accepted; if the target is privileged this is full privilege escalation.",
+   "fix": "Remove iam:PassRole for this role or scope it with iam:PassedToService.",
+   "tactic": "privilege-escalation",
+   "mitre": {
+    "id": "T1648",
+    "name": "Serverless Execution"
+   },
+   "tier": 2,
+   "combination": true,
+   "references": [
+    "https://attack.mitre.org/techniques/T1648/"
+   ],
+   "url": "https://pathbreak.io/aws-privilege-escalation-map/kinesisanalytics-passrole-create"
+  },
+  {
+   "id": "mwaa-passrole-create",
+   "title": "Pass role to MWAA environment",
+   "needs_actions": [
+    "iam:PassRole",
+    "mwaa:CreateEnvironment"
+   ],
+   "primary_action": "iam:PassRole",
+   "service": "IAM",
+   "category": "passrole-create",
+   "grants": "Can pass this role to a new MWAA environment and run Airflow DAG code as it",
+   "why": "this principal holds iam:PassRole on the target together with mwaa:CreateEnvironment, so it can stand up a Managed Workflows for Apache Airflow environment with the target as the execution role and drop a DAG that runs arbitrary Python as the target. Airflow DAG code is ordinary Python with no sandbox, so this is full run-as-role code execution.",
+   "fix": "Remove iam:PassRole for this role or scope it with iam:PassedToService; restrict mwaa:CreateEnvironment.",
+   "tactic": "privilege-escalation",
+   "mitre": {
+    "id": "T1651",
+    "name": "Cloud Administration Command"
+   },
+   "tier": 2,
+   "combination": true,
+   "references": [
+    "https://attack.mitre.org/techniques/T1651/"
+   ],
+   "url": "https://pathbreak.io/aws-privilege-escalation-map/mwaa-passrole-create"
+  },
+  {
+   "id": "sagemaker-passrole-create",
+   "title": "Pass role to SageMaker",
+   "needs_actions": [
+    "iam:PassRole",
+    "sagemaker:CreateNotebookInstance"
+   ],
+   "primary_action": "iam:PassRole",
+   "service": "IAM",
+   "category": "passrole-create",
+   "grants": "Can create a SageMaker notebook with this role and run a terminal as it",
+   "why": "this principal holds iam:PassRole on the target plus sagemaker:CreateNotebookInstance, so it can create a managed Jupyter notebook instance assigned the target and open a terminal in it that runs with the target's permissions (and exposes the target's credentials via the notebook's metadata). Because the target trusts sagemaker.amazonaws.com the pass is accepted; a privileged the target is full privilege escalation.",
+   "fix": "Remove iam:PassRole for this role or scope it with iam:PassedToService.",
+   "tactic": "privilege-escalation",
+   "mitre": {
+    "id": "T1648",
+    "name": "Serverless Execution"
+   },
+   "tier": 2,
+   "combination": true,
+   "references": [
+    "https://attack.mitre.org/techniques/T1648/"
+   ],
+   "url": "https://pathbreak.io/aws-privilege-escalation-map/sagemaker-passrole-create"
+  },
+  {
+   "id": "sagemaker-processingjob-passrole",
+   "title": "Pass role to SageMaker processing job",
+   "needs_actions": [
+    "iam:PassRole",
+    "sagemaker:CreateProcessingJob"
+   ],
+   "primary_action": "iam:PassRole",
+   "service": "IAM",
+   "category": "passrole-create",
+   "grants": "Can launch a SageMaker processing job with this role and run a container as it",
+   "why": "this principal holds iam:PassRole on the target plus sagemaker:CreateProcessingJob, so it can launch a SageMaker processing job with the target as its execution role and an attacker-controlled processing container/script, the container runs on managed infrastructure with the target's permissions and can exfiltrate the target's credentials. Because the target trusts sagemaker.amazonaws.com the pass is accepted; a privileged the target is full privilege escalation.",
+   "fix": "Remove iam:PassRole for this role or scope it with iam:PassedToService.",
+   "tactic": "privilege-escalation",
+   "mitre": {
+    "id": "T1648",
+    "name": "Serverless Execution"
+   },
+   "tier": 2,
+   "combination": true,
+   "references": [
+    "https://attack.mitre.org/techniques/T1648/"
+   ],
+   "url": "https://pathbreak.io/aws-privilege-escalation-map/sagemaker-processingjob-passrole"
+  },
+  {
+   "id": "sagemaker-trainingjob-passrole",
+   "title": "Pass role to SageMaker training job",
+   "needs_actions": [
+    "iam:PassRole",
+    "sagemaker:CreateTrainingJob"
+   ],
+   "primary_action": "iam:PassRole",
+   "service": "IAM",
+   "category": "passrole-create",
+   "grants": "Can launch a SageMaker training job with this role and run a container as it",
+   "why": "this principal holds iam:PassRole on the target plus sagemaker:CreateTrainingJob, so it can launch a SageMaker training job with the target as its execution role and an attacker-controlled training container/script, the container runs on managed infrastructure with the target's permissions and can exfiltrate the target's credentials. Because the target trusts sagemaker.amazonaws.com the pass is accepted; a privileged the target is full privilege escalation.",
+   "fix": "Remove iam:PassRole for this role or scope it with iam:PassedToService.",
+   "tactic": "privilege-escalation",
+   "mitre": {
+    "id": "T1648",
+    "name": "Serverless Execution"
+   },
+   "tier": 2,
+   "combination": true,
+   "references": [
+    "https://attack.mitre.org/techniques/T1648/"
+   ],
+   "url": "https://pathbreak.io/aws-privilege-escalation-map/sagemaker-trainingjob-passrole"
+  },
+  {
+   "id": "ssm-automation-passrole",
+   "title": "Pass role to SSM Automation",
+   "needs_actions": [
+    "iam:PassRole",
+    "ssm:CreateDocument",
+    "ssm:StartAutomationExecution"
+   ],
+   "primary_action": "iam:PassRole",
+   "service": "IAM",
+   "category": "passrole-create",
+   "grants": "Can run an SSM Automation script with this role as the assume role",
+   "why": "this principal holds iam:PassRole on the target plus ssm:CreateDocument and ssm:StartAutomationExecution, so it can author an SSM Automation document with an aws:executeScript Python step and start it passing the target as the AutomationAssumeRole, SSM runs the script in managed serverless compute with the target's permissions. Because the target trusts ssm.amazonaws.com the pass is accepted; if the target is privileged this is full privilege escalation with no EC2, agent, or intermediate infrastructure.",
+   "fix": "Remove iam:PassRole for this role or scope it with iam:PassedToService.",
+   "tactic": "privilege-escalation",
+   "mitre": {
+    "id": "T1648",
+    "name": "Serverless Execution"
+   },
+   "tier": 2,
+   "combination": true,
+   "references": [
+    "https://attack.mitre.org/techniques/T1648/"
+   ],
+   "url": "https://pathbreak.io/aws-privilege-escalation-map/ssm-automation-passrole"
+  },
+  {
+   "id": "stepfunctions-passrole-create",
+   "title": "Pass role to Step Functions",
+   "needs_actions": [
+    "iam:PassRole",
+    "states:CreateStateMachine",
+    "states:StartExecution"
+   ],
+   "primary_action": "iam:PassRole",
+   "service": "IAM",
+   "category": "passrole-create",
+   "grants": "Can create a Step Functions state machine with this role and call AWS as it",
+   "why": "this principal holds iam:PassRole on the target plus states:CreateStateMachine and states:StartExecution, so it can define a state machine with the target as its role and start it, the workflow then invokes AWS integrations with the target's permissions. Because the target trusts states.amazonaws.com the pass is accepted; the reach depends on which integrations the target enables, which is why this is marked needs-verification.",
+   "fix": "Remove iam:PassRole for this role or scope it with iam:PassedToService.",
+   "tactic": "privilege-escalation",
+   "mitre": {
+    "id": "T1648",
+    "name": "Serverless Execution"
+   },
+   "tier": 2,
+   "combination": true,
+   "references": [
+    "https://attack.mitre.org/techniques/T1648/"
+   ],
+   "url": "https://pathbreak.io/aws-privilege-escalation-map/stepfunctions-passrole-create"
+  },
+  {
+   "id": "iam-putgrouppolicy",
+   "title": "Put inline group policy",
+   "needs_actions": [
+    "iam:PutGroupPolicy"
+   ],
+   "primary_action": "iam:PutGroupPolicy",
+   "service": "IAM",
+   "category": "self-escalation",
+   "grants": "Can write an inline admin policy onto this group and promote its members",
+   "why": "this principal can call iam:PutGroupPolicy to write an inline policy onto group the target, instantly granting that permission set to every member of the group, including this principal if it belongs to the target. A full-admin inline policy promotes all members at once and persists until removed.",
+   "fix": "Remove iam:PutGroupPolicy from the principal.",
+   "tactic": "privilege-escalation",
+   "mitre": {
+    "id": "T1098.003",
+    "name": "Account Manipulation: Additional Cloud Roles"
+   },
+   "tier": 2,
+   "combination": false,
+   "references": [
+    "https://attack.mitre.org/techniques/T1098/003/"
+   ],
+   "url": "https://pathbreak.io/aws-privilege-escalation-map/iam-putgrouppolicy"
+  },
+  {
+   "id": "organizations-registerdelegatedadmin",
+   "title": "Register delegated administrator",
+   "needs_actions": [
+    "organizations:RegisterDelegatedAdministrator"
+   ],
+   "primary_action": "organizations:RegisterDelegatedAdministrator",
+   "service": "Organizations",
+   "category": "persistence",
+   "grants": "Can make an attacker account delegated admin of a security service org-wide",
+   "why": "this principal can call organizations:RegisterDelegatedAdministrator to make an attacker-controlled member account the delegated administrator of a security service (GuardDuty, Access Analyzer, Security Hub), gaining org-wide control of that control.",
+   "fix": "Restrict organizations:RegisterDelegatedAdministrator to a break-glass role.",
+   "tactic": "persistence",
+   "mitre": {
+    "id": "T1098",
+    "name": "Account Manipulation"
+   },
+   "tier": 2,
+   "combination": false,
+   "references": [
+    "https://attack.mitre.org/techniques/T1098/"
+   ],
+   "url": "https://pathbreak.io/aws-privilege-escalation-map/organizations-registerdelegatedadmin"
+  },
+  {
+   "id": "iam-delete-role-boundary",
+   "title": "Remove role permissions boundary",
+   "needs_actions": [
+    "iam:DeleteRolePermissionsBoundary"
+   ],
+   "primary_action": "iam:DeleteRolePermissionsBoundary",
+   "service": "IAM",
+   "category": "self-escalation",
+   "grants": "Can remove the permissions boundary capping this role",
+   "why": "this principal can call iam:DeleteRolePermissionsBoundary on role the target, removing the boundary that constrains it. If the target's attached policies are broader than the boundary allowed, the role immediately gains those permissions.",
+   "fix": "Remove iam:DeleteRolePermissionsBoundary from the principal; protect boundary changes with SCP and alarms.",
+   "tactic": "privilege-escalation",
+   "mitre": {
+    "id": "T1548",
+    "name": "Abuse Elevation Control Mechanism"
+   },
+   "tier": 2,
+   "combination": false,
+   "references": [
+    "https://attack.mitre.org/techniques/T1548/"
+   ],
+   "url": "https://pathbreak.io/aws-privilege-escalation-map/iam-delete-role-boundary"
+  },
+  {
+   "id": "iam-delete-user-boundary",
+   "title": "Remove user permissions boundary",
+   "needs_actions": [
+    "iam:DeleteUserPermissionsBoundary"
+   ],
+   "primary_action": "iam:DeleteUserPermissionsBoundary",
+   "service": "IAM",
+   "category": "self-escalation",
+   "grants": "Can remove the permissions boundary capping this user",
+   "why": "this principal can call iam:DeleteUserPermissionsBoundary on user the target, removing the boundary that constrains it and unlocking whatever its identity policies already grant.",
+   "fix": "Remove iam:DeleteUserPermissionsBoundary from the principal; protect boundary changes with SCP and alarms.",
+   "tactic": "privilege-escalation",
+   "mitre": {
+    "id": "T1548",
+    "name": "Abuse Elevation Control Mechanism"
+   },
+   "tier": 2,
+   "combination": false,
+   "references": [
+    "https://attack.mitre.org/techniques/T1548/"
+   ],
+   "url": "https://pathbreak.io/aws-privilege-escalation-map/iam-delete-user-boundary"
+  },
+  {
+   "id": "iam-put-role-boundary",
+   "title": "Replace role permissions boundary",
+   "needs_actions": [
+    "iam:PutRolePermissionsBoundary"
+   ],
+   "primary_action": "iam:PutRolePermissionsBoundary",
+   "service": "IAM",
+   "category": "self-escalation",
+   "grants": "Can replace this role's permissions boundary with a permissive one",
+   "why": "this principal can call iam:PutRolePermissionsBoundary on role the target to overwrite its boundary with a permissive one (e.g. AdministratorAccess), lifting the cap on the role's existing policies.",
+   "fix": "Remove iam:PutRolePermissionsBoundary from the principal; protect boundary changes with SCP and alarms.",
+   "tactic": "privilege-escalation",
+   "mitre": {
+    "id": "T1548",
+    "name": "Abuse Elevation Control Mechanism"
+   },
+   "tier": 2,
+   "combination": false,
+   "references": [
+    "https://attack.mitre.org/techniques/T1548/"
+   ],
+   "url": "https://pathbreak.io/aws-privilege-escalation-map/iam-put-role-boundary"
+  },
+  {
+   "id": "iam-updateassumerolepolicy",
+   "title": "Rewrite role trust, then assume",
+   "needs_actions": [
+    "iam:UpdateAssumeRolePolicy",
+    "sts:AssumeRole"
+   ],
+   "primary_action": "iam:UpdateAssumeRolePolicy",
+   "service": "IAM",
+   "category": "self-escalation",
+   "grants": "Can rewrite this role's trust policy and then assume it",
+   "why": "this principal can call iam:UpdateAssumeRolePolicy to rewrite the trust policy of role the target so that it trusts this principal, then call sts:AssumeRole to take it over. This two-step move lets this principal commandeer any role in the account regardless of its original trust, if the target is privileged, that is direct privilege escalation. (Both actions are required: rewriting trust is useless without the follow-up assume.)",
+   "fix": "Remove iam:UpdateAssumeRolePolicy from the principal.",
+   "tactic": "privilege-escalation",
+   "mitre": {
+    "id": "T1098.003",
+    "name": "Account Manipulation: Additional Cloud Roles"
+   },
+   "tier": 2,
+   "combination": true,
+   "references": [
+    "https://attack.mitre.org/techniques/T1098/003/"
+   ],
+   "url": "https://pathbreak.io/aws-privilege-escalation-map/iam-updateassumerolepolicy"
+  },
+  {
+   "id": "ssm-sendcommand",
+   "title": "Run command via SSM",
+   "needs_actions": [
+    "ssm:SendCommand"
+   ],
+   "primary_action": "ssm:SendCommand",
+   "service": "Systems Manager",
+   "category": "session-access",
+   "grants": "Can run arbitrary commands on this instance via SSM",
+   "why": "this principal can call ssm:SendCommand to run arbitrary commands on SSM-managed instance the target without an interactive session, key pair, or open port. That is non-interactive code execution on the target, letting this principal steal the instance's role credentials and pivot, the same control outcome as StartSession through a different API.",
+   "fix": "Restrict ssm:SendCommand to break-glass principals only.",
+   "tactic": "lateral-movement",
+   "mitre": {
+    "id": "T1651",
+    "name": "Cloud Administration Command"
+   },
+   "tier": 2,
+   "combination": false,
+   "references": [
+    "https://attack.mitre.org/techniques/T1651/"
+   ],
+   "url": "https://pathbreak.io/aws-privilege-escalation-map/ssm-sendcommand"
+  },
+  {
+   "id": "dynamodb-putresourcepolicy-grant",
+   "title": "Self-grant DynamoDB table read",
+   "needs_actions": [
+    "dynamodb:PutResourcePolicy"
+   ],
+   "primary_action": "dynamodb:PutResourcePolicy",
+   "service": "DynamoDB",
+   "category": "resource-policy-grant",
+   "grants": "Can attach a resource policy to this table granting itself read",
+   "why": "this principal can call dynamodb:PutResourcePolicy (a 2024 feature) on table the target to attach a resource-based policy self-granting GetItem/Query/Scan, then read the table. The catalogue previously assumed DynamoDB had no resource policy - it now does.",
+   "fix": "Restrict dynamodb:PutResourcePolicy on the table. NOTE: this invalidates the stale 'DynamoDB has no resource policy' assumption in the current remediation code.",
+   "tactic": "privilege-escalation",
+   "mitre": {
+    "id": "T1098",
+    "name": "Account Manipulation"
+   },
+   "tier": 2,
+   "combination": false,
+   "references": [
+    "https://attack.mitre.org/techniques/T1098/"
+   ],
+   "url": "https://pathbreak.io/aws-privilege-escalation-map/dynamodb-putresourcepolicy-grant"
+  },
+  {
+   "id": "ecr-setrepositorypolicy-grant",
+   "title": "Self-grant ECR pull/push via repository policy",
+   "needs_actions": [
+    "ecr:SetRepositoryPolicy"
+   ],
+   "primary_action": "ecr:SetRepositoryPolicy",
+   "service": "ECR",
+   "category": "resource-policy-grant",
+   "grants": "Can rewrite this ECR repository's policy to grant itself pull/push, then pull or poison images",
+   "why": "this principal can call ecr:SetRepositoryPolicy on repository the target to attach a policy granting itself (or an external account / the public) pull or push. Pulling reads container images, which frequently bake in credentials, tokens and source - direct data exfiltration. Pushing replaces image tags a downstream ECS/EKS/CodeBuild consumer trusts, poisoning the supply chain so the attacker's code later runs as the consumer's role. The attacker rewrites the lock rather than holding a key.",
+   "fix": "Restrict ecr:SetRepositoryPolicy to registry admins; deny repository-policy writes via SCP; require aws:PrincipalOrgID on repo policies; enable tag immutability + image scanning so a poisoned push is caught.",
+   "tactic": "privilege-escalation",
+   "mitre": {
+    "id": "T1098",
+    "name": "Account Manipulation"
+   },
+   "tier": 2,
+   "combination": false,
+   "references": [
+    "https://attack.mitre.org/techniques/T1098/"
+   ],
+   "url": "https://pathbreak.io/aws-privilege-escalation-map/ecr-setrepositorypolicy-grant"
+  },
+  {
+   "id": "eventbridge-putpermission-grant",
+   "title": "Self-grant EventBridge bus PutEvents",
+   "needs_actions": [
+    "events:PutPermission"
+   ],
+   "primary_action": "events:PutPermission",
+   "service": "EventBridge",
+   "category": "resource-policy-grant",
+   "grants": "Can grant an external account PutEvents on this bus, injecting events into automation",
+   "why": "this principal can call events:PutPermission to grant an external account PutEvents on bus the target, injecting events into automation. Active counterpart to public-eventbridge-bus-policy.",
+   "fix": "Restrict events:PutPermission on the event bus.",
+   "tactic": "privilege-escalation",
+   "mitre": {
+    "id": "T1098",
+    "name": "Account Manipulation"
+   },
+   "tier": 2,
+   "combination": false,
+   "references": [
+    "https://attack.mitre.org/techniques/T1098/"
+   ],
+   "url": "https://pathbreak.io/aws-privilege-escalation-map/eventbridge-putpermission-grant"
+  },
+  {
+   "id": "kms-creategrant-decrypt",
+   "title": "Self-grant KMS Decrypt via grant",
+   "needs_actions": [
+    "kms:CreateGrant"
+   ],
+   "primary_action": "kms:CreateGrant",
+   "service": "KMS",
+   "category": "resource-policy-grant",
+   "grants": "Can grant itself Decrypt on this KMS key via a grant",
+   "why": "this principal can call kms:CreateGrant on key the target to grant itself (or an attacker principal) Decrypt, bypassing the key policy entirely. This is disproportionately valuable because it manufactures the kms:Decrypt half of every KMS-gated data path (S3-SSE, Secrets Manager CMK, encrypted snapshots).",
+   "fix": "Restrict kms:CreateGrant on the key; a grant is a separate authz channel from the key policy and must be controlled independently.",
+   "tactic": "privilege-escalation",
+   "mitre": {
+    "id": "T1098",
+    "name": "Account Manipulation"
+   },
+   "tier": 2,
+   "combination": false,
+   "references": [
+    "https://attack.mitre.org/techniques/T1098/"
+   ],
+   "url": "https://pathbreak.io/aws-privilege-escalation-map/kms-creategrant-decrypt"
+  },
+  {
+   "id": "kms-putkeypolicy-grant-decrypt",
+   "title": "Self-grant KMS decrypt via key policy",
+   "needs_actions": [
+    "kms:PutKeyPolicy"
+   ],
+   "primary_action": "kms:PutKeyPolicy",
+   "service": "KMS",
+   "category": "resource-policy-grant",
+   "grants": "Can rewrite this KMS key's policy to grant itself decrypt, then decrypt with it",
+   "why": "this principal can call kms:PutKeyPolicy on key the target to attach a key-policy statement granting itself kms:Decrypt, then decrypt the ciphertext the target protects. The key is a gatekeeper: decrypt access unlocks every secret, volume, snapshot and object the key gates, so rewriting the key's own policy amplifies into control of all the data it protects.",
+   "fix": "Restrict kms:PutKeyPolicy and kms:CreateGrant to key admins; keep the default key policy's self-management guard; deny key-policy writes via SCP.",
+   "tactic": "privilege-escalation",
+   "mitre": {
+    "id": "T1098",
+    "name": "Account Manipulation"
+   },
+   "tier": 2,
+   "combination": false,
+   "references": [
+    "https://attack.mitre.org/techniques/T1098/"
+   ],
+   "url": "https://pathbreak.io/aws-privilege-escalation-map/kms-putkeypolicy-grant-decrypt"
+  },
+  {
+   "id": "lakeformation-grant-data-access",
+   "title": "Self-grant Lake Formation data access",
+   "needs_actions": [
+    "lakeformation:GrantPermissions"
+   ],
+   "primary_action": "lakeformation:GrantPermissions",
+   "service": "Lake Formation",
+   "category": "resource-policy-grant",
+   "grants": "Can self-grant Lake Formation permissions on this governed table, then read it",
+   "why": "this principal can call lakeformation:GrantPermissions to grant itself SELECT (or ALL) on governed table the target, then query the table and the S3 data it catalogs. Lake Formation is the authorization layer over the data lake, so self-granting inside it bypasses the absence of a table-level grant: the attacker rewrites the lock rather than holding a key, turning control of the grant API into read access to the governed data.",
+   "fix": "Restrict lakeformation:GrantPermissions and lakeformation:PutDataLakeSettings to data-lake admins; deny LF grant/admin writes via SCP; review Data Lake settings and the set of LF administrators.",
+   "tactic": "privilege-escalation",
+   "mitre": {
+    "id": "T1098",
+    "name": "Account Manipulation"
+   },
+   "tier": 2,
+   "combination": false,
+   "references": [
+    "https://attack.mitre.org/techniques/T1098/"
+   ],
+   "url": "https://pathbreak.io/aws-privilege-escalation-map/lakeformation-grant-data-access"
+  },
+  {
+   "id": "lambda-addpermission-grant-invoke",
+   "title": "Self-grant Lambda invoke via resource policy",
+   "needs_actions": [
+    "lambda:AddPermission"
+   ],
+   "primary_action": "lambda:AddPermission",
+   "service": "Lambda",
+   "category": "resource-policy-grant",
+   "grants": "Can add itself to this function's invoke policy and trigger it (runs as the exec role)",
+   "why": "this principal can call lambda:AddPermission on a privileged function to add itself (or an external account) to the function's invoke policy, then trigger it. The function executes as its execution role the target, so invoking it is code execution as that role - the prize is not the function but the role it surrenders and everything that role can reach. The attacker rewrites the invoke lock rather than holding an existing invoke grant.",
+   "fix": "Restrict lambda:AddPermission to function owners; deny invoke-policy writes via SCP; require aws:PrincipalOrgID / SourceArn on function resource policies; least-privilege the execution role.",
+   "tactic": "privilege-escalation",
+   "mitre": {
+    "id": "T1098",
+    "name": "Account Manipulation"
+   },
+   "tier": 2,
+   "combination": false,
+   "references": [
+    "https://attack.mitre.org/techniques/T1098/"
+   ],
+   "url": "https://pathbreak.io/aws-privilege-escalation-map/lambda-addpermission-grant-invoke"
+  },
+  {
+   "id": "s3-putbucketpolicy-grant",
+   "title": "Self-grant S3 read via bucket policy",
+   "needs_actions": [
+    "s3:PutBucketPolicy"
+   ],
+   "primary_action": "s3:PutBucketPolicy",
+   "service": "S3",
+   "category": "resource-policy-grant",
+   "grants": "Can rewrite this bucket's policy to grant itself read access, then read it",
+   "why": "this principal can call s3:PutBucketPolicy on bucket the target to attach a resource policy granting itself (or the public) s3:GetObject, then read the bucket's objects. This bypasses the absence of an identity-policy read grant: the attacker rewrites the lock rather than holding a key. Severity is driven by the bucket's sensitivity - control of the policy becomes direct exfiltration of whatever the target holds.",
+   "fix": "Restrict s3:PutBucketPolicy to CI/CD/admins; enable account-level S3 Block Public Access; deny bucket-policy writes via SCP.",
+   "tactic": "privilege-escalation",
+   "mitre": {
+    "id": "T1098",
+    "name": "Account Manipulation"
+   },
+   "tier": 2,
+   "combination": false,
+   "references": [
+    "https://attack.mitre.org/techniques/T1098/"
+   ],
+   "url": "https://pathbreak.io/aws-privilege-escalation-map/s3-putbucketpolicy-grant"
+  },
+  {
+   "id": "secretsmanager-putresourcepolicy-grant",
+   "title": "Self-grant secret read via resource policy",
+   "needs_actions": [
+    "secretsmanager:PutResourcePolicy"
+   ],
+   "primary_action": "secretsmanager:PutResourcePolicy",
+   "service": "Secrets Manager",
+   "category": "resource-policy-grant",
+   "grants": "Can rewrite this secret's resource policy to grant itself read, then read it",
+   "why": "this principal can call secretsmanager:PutResourcePolicy on secret the target to attach a resource policy granting itself (or the public) secretsmanager:GetSecretValue, then read the secret value. This bypasses the absence of an identity-policy read grant: the attacker rewrites the lock rather than holding a key. A secret frequently holds another principal's long-term credentials, so control of the policy becomes direct credential theft and a pivot to whatever identity the target holds.",
+   "fix": "Restrict secretsmanager:PutResourcePolicy to secret admins; deny resource-policy writes via SCP; require aws:PrincipalOrgID on secret resource policies.",
+   "tactic": "privilege-escalation",
+   "mitre": {
+    "id": "T1098",
+    "name": "Account Manipulation"
+   },
+   "tier": 2,
+   "combination": false,
+   "references": [
+    "https://attack.mitre.org/techniques/T1098/"
+   ],
+   "url": "https://pathbreak.io/aws-privilege-escalation-map/secretsmanager-putresourcepolicy-grant"
+  },
+  {
+   "id": "sns-addpermission-grant",
+   "title": "Self-grant SNS topic access",
+   "needs_actions": [
+    "sns:AddPermission"
+   ],
+   "primary_action": "sns:AddPermission",
+   "service": "SNS",
+   "category": "resource-policy-grant",
+   "grants": "Can add an attacker account to this SNS topic's policy, then read or inject",
+   "why": "this principal can call sns:AddPermission to add an external account to topic the target's policy, then subscribe (read) or publish (inject). Active counterpart to public-sns-topic-policy - we detect the exposed topic today but not the identity that can create it.",
+   "fix": "Restrict sns:AddPermission on the topic.",
+   "tactic": "privilege-escalation",
+   "mitre": {
+    "id": "T1098",
+    "name": "Account Manipulation"
+   },
+   "tier": 2,
+   "combination": false,
+   "references": [
+    "https://attack.mitre.org/techniques/T1098/"
+   ],
+   "url": "https://pathbreak.io/aws-privilege-escalation-map/sns-addpermission-grant"
+  },
+  {
+   "id": "sqs-addpermission-grant",
+   "title": "Self-grant SQS queue access",
+   "needs_actions": [
+    "sqs:AddPermission"
+   ],
+   "primary_action": "sqs:AddPermission",
+   "service": "SQS",
+   "category": "resource-policy-grant",
+   "grants": "Can add an attacker account to this SQS queue's policy, then read or inject",
+   "why": "this principal can call sqs:AddPermission to grant an attacker account ReceiveMessage/SendMessage on queue the target, reading or injecting messages.",
+   "fix": "Restrict sqs:AddPermission and sqs:SetQueueAttributes on the queue.",
+   "tactic": "privilege-escalation",
+   "mitre": {
+    "id": "T1098",
+    "name": "Account Manipulation"
+   },
+   "tier": 2,
+   "combination": false,
+   "references": [
+    "https://attack.mitre.org/techniques/T1098/"
+   ],
+   "url": "https://pathbreak.io/aws-privilege-escalation-map/sqs-addpermission-grant"
+  },
+  {
+   "id": "sts-assume-role",
+   "title": "Assume role",
+   "needs_actions": [
+    "sts:AssumeRole"
+   ],
+   "primary_action": "sts:AssumeRole",
+   "service": "STS",
+   "category": "assume-role",
+   "grants": "Can assume this role and inherit all its permissions",
+   "why": "this principal can call sts:AssumeRole on the target because the target's trust policy admits it, receiving a full set of the target's temporary credentials. For the duration of that session this principal effectively becomes the target and wields every permission the target holds, and since the target is itself a principal, it can in turn assume further roles, escalating or moving laterally across the account.",
+   "fix": "Tighten the role trust policy; remove sts:AssumeRole from the principal.",
+   "tactic": "lateral-movement",
+   "mitre": {
+    "id": "T1078.004",
+    "name": "Valid Accounts: Cloud Accounts"
+   },
+   "tier": 1,
+   "combination": false,
+   "references": [
+    "https://attack.mitre.org/techniques/T1078/004/"
+   ],
+   "url": "https://pathbreak.io/aws-privilege-escalation-map/sts-assume-role"
+  },
+  {
+   "id": "redshift-authorizesnapshotaccess",
+   "title": "Authorize Redshift snapshot restore",
+   "needs_actions": [
+    "redshift:AuthorizeSnapshotAccess"
+   ],
+   "primary_action": "redshift:AuthorizeSnapshotAccess",
+   "service": "Redshift",
+   "category": "data-exfil",
+   "grants": "Can authorize an attacker account to restore this Redshift snapshot",
+   "why": "this principal can call redshift:AuthorizeSnapshotAccess to authorize an attacker account to restore snapshot the target, yielding a full copy of the data warehouse. Active counterpart to the public-redshift-snapshot-shared exposure.",
+   "fix": "Restrict redshift:AuthorizeSnapshotAccess on the snapshot.",
+   "tactic": "exfiltration",
+   "mitre": {
+    "id": "T1537",
+    "name": "Transfer Data to Cloud Account"
+   },
+   "tier": 1,
+   "combination": false,
+   "references": [
+    "https://attack.mitre.org/techniques/T1537/"
+   ],
+   "url": "https://pathbreak.io/aws-privilege-escalation-map/redshift-authorizesnapshotaccess"
+  },
+  {
+   "id": "iam-addclientid-oidc",
+   "title": "Backdoor OIDC provider audience",
+   "needs_actions": [
+    "iam:AddClientIDToOpenIDConnectProvider"
+   ],
+   "primary_action": "iam:AddClientIDToOpenIDConnectProvider",
+   "service": "IAM",
+   "category": "federation-provider-takeover",
+   "grants": "Can add an attacker audience to a trusted OIDC provider",
+   "why": "this principal can call iam:AddClientIDToOpenIDConnectProvider to register an attacker-controlled audience on a trusted OIDC provider, then create a matching token and call sts:AssumeRoleWithWebIdentity into role the target that trusts that provider.",
+   "fix": "Restrict iam:AddClientIDToOpenIDConnectProvider to a break-glass role; alarm on changes to OIDC providers.",
+   "tactic": "persistence",
+   "mitre": {
+    "id": "T1556",
+    "name": "Modify Authentication Process"
+   },
+   "tier": 1,
+   "combination": false,
+   "references": [
+    "https://attack.mitre.org/techniques/T1556/"
+   ],
+   "url": "https://pathbreak.io/aws-privilege-escalation-map/iam-addclientid-oidc"
+  },
+  {
+   "id": "securityhub-batchdisablestandards",
+   "title": "Batch-disable Security Hub standards",
+   "needs_actions": [
+    "securityhub:BatchDisableStandards"
+   ],
+   "primary_action": "securityhub:BatchDisableStandards",
+   "service": "Security Hub",
+   "category": "defense-evasion",
+   "grants": "Can switch off compliance standards on this Security Hub without a full disable",
+   "why": "this principal can call securityhub:BatchDisableStandards to switch off compliance standards quietly, without the loud full-disable event.",
+   "fix": "Restrict securityhub:BatchDisableStandards to a break-glass role.",
+   "tactic": "defense-evasion",
+   "mitre": {
+    "id": "T1562.001",
+    "name": "Impair Defenses: Disable or Modify Tools"
+   },
+   "tier": 1,
+   "combination": false,
+   "references": [
+    "https://attack.mitre.org/techniques/T1562/001/"
+   ],
+   "url": "https://pathbreak.io/aws-privilege-escalation-map/securityhub-batchdisablestandards"
+  },
+  {
+   "id": "rdsdb-connect",
+   "title": "Connect to RDS with IAM auth token",
+   "needs_actions": [
+    "rds-db:connect"
+   ],
+   "primary_action": "rds-db:connect",
+   "service": "RDS",
+   "category": "db-iam-credentials",
+   "grants": "Can authenticate to this RDS instance with an IAM-issued database token",
+   "why": "this principal can call rds-db:connect to obtain a short-lived IAM authentication token for RDS instance the target and log in as a database user, with no stored DB password. When the instance has IAM database authentication enabled, control of the IAM principal becomes data-plane access to the database - direct exfiltration of whatever it holds.",
+   "fix": "Disable IAM database authentication where unused; scope rds-db:connect to specific dbuser resource ARNs; prefer least-privilege DB users.",
+   "tactic": "collection",
+   "mitre": {
+    "id": "T1530",
+    "name": "Data from Cloud Storage"
+   },
+   "tier": 1,
+   "combination": false,
+   "references": [
+    "https://attack.mitre.org/techniques/T1530/"
+   ],
+   "url": "https://pathbreak.io/aws-privilege-escalation-map/rdsdb-connect"
+  },
+  {
+   "id": "iam-createaccesskey",
+   "title": "Create access key for user",
+   "needs_actions": [
+    "iam:CreateAccessKey"
+   ],
+   "primary_action": "iam:CreateAccessKey",
+   "service": "IAM",
+   "category": "cred-mint",
+   "grants": "Can create a new long-lived access key for this user",
+   "why": "this principal can call iam:CreateAccessKey to create a brand-new long-lived access key for user the target without knowing any of the target's existing secrets. From then on this principal can authenticate the API as the target with that key. The key is independent of the target's other credentials, it survives a password reset or key rotation, so this is both an account-takeover and a durable persistence foothold.",
+   "fix": "Remove iam:CreateAccessKey from the principal.",
+   "tactic": "persistence",
+   "mitre": {
+    "id": "T1098.001",
+    "name": "Account Manipulation: Additional Cloud Credentials"
+   },
+   "tier": 1,
+   "combination": false,
+   "references": [
+    "https://attack.mitre.org/techniques/T1098/001/"
+   ],
+   "url": "https://pathbreak.io/aws-privilege-escalation-map/iam-createaccesskey"
+  },
+  {
+   "id": "redshift-getclustercredentials",
+   "title": "Create Redshift IAM DB credentials",
+   "needs_actions": [
+    "redshift:GetClusterCredentials"
+   ],
+   "primary_action": "redshift:GetClusterCredentials",
+   "service": "Redshift",
+   "category": "db-iam-credentials",
+   "grants": "Can create a temporary IAM database login and read this Redshift cluster",
+   "why": "this principal can call redshift:GetClusterCredentials on cluster the target to have AWS create a short-lived database username and password bound to this principal's IAM identity, then connect to the cluster and query it. This bridges an IAM-only foothold into the Redshift data plane with no stored DB password - control of the IAM principal becomes read access to whatever the warehouse holds.",
+   "fix": "Restrict redshift:GetClusterCredentials (and GetClusterCredentialsWithIAM); scope it to specific dbuser/dbname; prefer short-lived, audited DB roles.",
+   "tactic": "collection",
+   "mitre": {
+    "id": "T1530",
+    "name": "Data from Cloud Storage"
+   },
+   "tier": 1,
+   "combination": false,
+   "references": [
+    "https://attack.mitre.org/techniques/T1530/"
+   ],
+   "url": "https://pathbreak.io/aws-privilege-escalation-map/redshift-getclustercredentials"
+  },
+  {
+   "id": "iam-createservicespecificcredential",
+   "title": "Create service-specific credential for user",
+   "needs_actions": [
+    "iam:CreateServiceSpecificCredential"
+   ],
+   "primary_action": "iam:CreateServiceSpecificCredential",
+   "service": "IAM",
+   "category": "cred-mint",
+   "grants": "Can create service-specific (CodeCommit/Keyspaces) credentials for this user",
+   "why": "this principal can call iam:CreateServiceSpecificCredential to create a fresh long-lived service-specific credential (Git-over-HTTPS for CodeCommit, or Amazon Keyspaces/Cassandra) for user the target without knowing any of the target's existing secrets. From then on this principal can authenticate to those services as the target. The credential is independent of the target's password and access keys and survives their rotation, so it is both a takeover of the target's service access and a durable persistence foothold, narrower in blast radius than a full access key.",
+   "fix": "Remove iam:CreateServiceSpecificCredential / iam:ResetServiceSpecificCredential from the principal.",
+   "tactic": "persistence",
+   "mitre": {
+    "id": "T1098.001",
+    "name": "Account Manipulation: Additional Cloud Credentials"
+   },
+   "tier": 1,
+   "combination": false,
+   "references": [
+    "https://attack.mitre.org/techniques/T1098/001/"
+   ],
+   "url": "https://pathbreak.io/aws-privilege-escalation-map/iam-createservicespecificcredential"
+  },
+  {
+   "id": "kms-decrypt",
+   "title": "Decrypt with KMS key",
+   "needs_actions": [
+    "kms:Decrypt"
+   ],
+   "primary_action": "kms:Decrypt",
+   "service": "KMS",
+   "category": "kms-decrypt",
+   "grants": "Can decrypt ciphertext protected by this KMS key",
+   "why": "this principal can call kms:Decrypt with the target, verified against both this principal's identity policy and the target's key policy. The key is a gatekeeper: decrypt access unlocks every ciphertext the key protects (encrypted secrets, volumes, snapshots, S3 objects), so control of the key amplifies into control of all the data it gates.",
+   "fix": "Tighten the KMS key policy and the principal's kms:Decrypt; use grants/least-privilege key policies.",
+   "tactic": "credential-access",
+   "mitre": {
+    "id": "T1552",
+    "name": "Unsecured Credentials"
+   },
+   "tier": 1,
+   "combination": false,
+   "references": [
+    "https://attack.mitre.org/techniques/T1552/"
+   ],
+   "url": "https://pathbreak.io/aws-privilege-escalation-map/kms-decrypt"
+  },
+  {
+   "id": "cloudtrail-updatetrail",
+   "title": "Degrade CloudTrail configuration",
+   "needs_actions": [
+    "cloudtrail:UpdateTrail"
+   ],
+   "primary_action": "cloudtrail:UpdateTrail",
+   "service": "CloudTrail",
+   "category": "defense-evasion",
+   "grants": "Can repoint or degrade this trail (dead bucket, drop multi-region)",
+   "why": "this principal can call cloudtrail:UpdateTrail on the target to send delivery to an attacker-controlled or non-existent S3 bucket, or to turn off multi-region and global-service events. The trail is still 'logging' but the records never land anywhere useful.",
+   "fix": "Restrict cloudtrail:UpdateTrail to a break-glass role; deny org-wide via SCP and alarm on the event.",
+   "tactic": "defense-evasion",
+   "mitre": {
+    "id": "T1562.008",
+    "name": "Impair Defenses: Disable or Modify Cloud Logs"
+   },
+   "tier": 1,
+   "combination": false,
+   "references": [
+    "https://attack.mitre.org/techniques/T1562/008/"
+   ],
+   "url": "https://pathbreak.io/aws-privilege-escalation-map/cloudtrail-updatetrail"
+  },
+  {
+   "id": "cloudtrail-deletetrail",
+   "title": "Delete CloudTrail trail",
+   "needs_actions": [
+    "cloudtrail:DeleteTrail"
+   ],
+   "primary_action": "cloudtrail:DeleteTrail",
+   "service": "CloudTrail",
+   "category": "defense-evasion",
+   "grants": "Can delete this CloudTrail trail outright",
+   "why": "this principal can call cloudtrail:DeleteTrail to remove trail the target entirely. Louder than StopLogging because the trail disappears from the console, but equally effective at ending recording - and already-delivered log files in S3 survive, so this blinds the future rather than erasing the past.",
+   "fix": "Restrict cloudtrail:DeleteTrail to a break-glass role; deny it org-wide via SCP and alarm on the event.",
+   "tactic": "defense-evasion",
+   "mitre": {
+    "id": "T1562.008",
+    "name": "Impair Defenses: Disable or Modify Cloud Logs"
+   },
+   "tier": 1,
+   "combination": false,
+   "references": [
+    "https://attack.mitre.org/techniques/T1562/008/"
+   ],
+   "url": "https://pathbreak.io/aws-privilege-escalation-map/cloudtrail-deletetrail"
+  },
+  {
+   "id": "cloudwatch-deletealarms",
+   "title": "Delete CloudWatch alarms",
+   "needs_actions": [
+    "cloudwatch:DeleteAlarms"
+   ],
+   "primary_action": "cloudwatch:DeleteAlarms",
+   "service": "CloudWatch",
+   "category": "defense-evasion",
+   "grants": "Can delete alerting alarms so later activity raises no notification",
+   "why": "this principal can call cloudwatch:DeleteAlarms to remove alerting alarms so subsequent activity raises no notification.",
+   "fix": "Restrict cloudwatch:DeleteAlarms to a break-glass role. cloudwatch:DisableAlarmActions is a quieter variant.",
+   "tactic": "defense-evasion",
+   "mitre": {
+    "id": "T1562.001",
+    "name": "Impair Defenses: Disable or Modify Tools"
+   },
+   "tier": 1,
+   "combination": false,
+   "references": [
+    "https://attack.mitre.org/techniques/T1562/001/"
+   ],
+   "url": "https://pathbreak.io/aws-privilege-escalation-map/cloudwatch-deletealarms"
+  },
+  {
+   "id": "logs-deleteloggroup",
+   "title": "Delete CloudWatch log group",
+   "needs_actions": [
+    "logs:DeleteLogGroup"
+   ],
+   "primary_action": "logs:DeleteLogGroup",
+   "service": "CloudWatch Logs",
+   "category": "defense-evasion",
+   "grants": "Can destroy this log group and everything stored in it",
+   "why": "this principal can call logs:DeleteLogGroup on the target, deleting the group and all stored events - useful both to erase traces and to remove application/VPC/Lambda telemetry going forward. DeleteSubscriptionFilter and DeleteRetentionPolicy are quieter variants of the same lever.",
+   "fix": "Restrict logs:DeleteLogGroup to a break-glass role; deny via SCP and alarm on the event.",
+   "tactic": "defense-evasion",
+   "mitre": {
+    "id": "T1562.008",
+    "name": "Impair Defenses: Disable or Modify Cloud Logs"
+   },
+   "tier": 1,
+   "combination": false,
+   "references": [
+    "https://attack.mitre.org/techniques/T1562/008/"
+   ],
+   "url": "https://pathbreak.io/aws-privilege-escalation-map/logs-deleteloggroup"
+  },
+  {
+   "id": "config-deletedeliverychannel",
+   "title": "Delete Config delivery channel",
+   "needs_actions": [
+    "config:DeleteDeliveryChannel"
+   ],
+   "primary_action": "config:DeleteDeliveryChannel",
+   "service": "Config",
+   "category": "defense-evasion",
+   "grants": "Can cut this Config recorder's S3/SNS delivery",
+   "why": "this principal can call config:DeleteDeliveryChannel to sever where AWS Config ships its snapshots and notifications, so configuration history stops being persisted even if the recorder keeps running.",
+   "fix": "Restrict config:DeleteDeliveryChannel to a break-glass role; deny via SCP (no resource-level scope, so the Deny must use Resource \"*\").",
+   "tactic": "defense-evasion",
+   "mitre": {
+    "id": "T1562.001",
+    "name": "Impair Defenses: Disable or Modify Tools"
+   },
+   "tier": 1,
+   "combination": false,
+   "references": [
+    "https://attack.mitre.org/techniques/T1562/001/"
+   ],
+   "url": "https://pathbreak.io/aws-privilege-escalation-map/config-deletedeliverychannel"
+  },
+  {
+   "id": "config-deleteconfigurationrecorder",
+   "title": "Delete Config recorder",
+   "needs_actions": [
+    "config:DeleteConfigurationRecorder"
+   ],
+   "primary_action": "config:DeleteConfigurationRecorder",
+   "service": "Config",
+   "category": "defense-evasion",
+   "grants": "Can delete this AWS Config recorder outright",
+   "why": "this principal can call config:DeleteConfigurationRecorder on the target, ending configuration-history recording entirely rather than merely stopping it. Downstream Config rules and drift detection stop evaluating.",
+   "fix": "Restrict config:DeleteConfigurationRecorder to a break-glass role; deny via SCP (the action has no resource-level scope, so the Deny must use Resource \"*\").",
+   "tactic": "defense-evasion",
+   "mitre": {
+    "id": "T1562.001",
+    "name": "Impair Defenses: Disable or Modify Tools"
+   },
+   "tier": 1,
+   "combination": false,
+   "references": [
+    "https://attack.mitre.org/techniques/T1562/001/"
+   ],
+   "url": "https://pathbreak.io/aws-privilege-escalation-map/config-deleteconfigurationrecorder"
+  },
+  {
+   "id": "guardduty-deletedetector",
+   "title": "Delete GuardDuty detector",
+   "needs_actions": [
+    "guardduty:DeleteDetector"
+   ],
+   "primary_action": "guardduty:DeleteDetector",
+   "service": "GuardDuty",
+   "category": "defense-evasion",
+   "grants": "Can delete this GuardDuty detector, ending threat detection in the region",
+   "why": "this principal can call guardduty:DeleteDetector on the target, which is the region's entire GuardDuty configuration - deleting it stops all threat detection there and discards existing findings. Nothing else in the account signals that detection has gone away.",
+   "fix": "Restrict guardduty:DeleteDetector / DisassociateFromMasterAccount to a break-glass role; deny via SCP and alarm on the event.",
+   "tactic": "defense-evasion",
+   "mitre": {
+    "id": "T1562.001",
+    "name": "Impair Defenses: Disable or Modify Tools"
+   },
+   "tier": 1,
+   "combination": false,
+   "references": [
+    "https://attack.mitre.org/techniques/T1562/001/"
+   ],
+   "url": "https://pathbreak.io/aws-privilege-escalation-map/guardduty-deletedetector"
+  },
+  {
+   "id": "accessanalyzer-deleteanalyzer",
+   "title": "Delete IAM Access Analyzer",
+   "needs_actions": [
+    "access-analyzer:DeleteAnalyzer"
+   ],
+   "primary_action": "access-analyzer:DeleteAnalyzer",
+   "service": "Access Analyzer",
+   "category": "defense-evasion",
+   "grants": "Can delete the IAM Access Analyzer, blinding external-access findings",
+   "why": "this principal can call access-analyzer:DeleteAnalyzer to delete the IAM Access Analyzer, blinding external- and unused-access findings so later resource-policy grants go unnoticed. Prefix is access-analyzer.",
+   "fix": "Restrict access-analyzer:DeleteAnalyzer to a break-glass role; deny via SCP.",
+   "tactic": "defense-evasion",
+   "mitre": {
+    "id": "T1562.001",
+    "name": "Impair Defenses: Disable or Modify Tools"
+   },
+   "tier": 1,
+   "combination": false,
+   "references": [
+    "https://attack.mitre.org/techniques/T1562/001/"
+   ],
+   "url": "https://pathbreak.io/aws-privilege-escalation-map/accessanalyzer-deleteanalyzer"
+  },
+  {
+   "id": "organizations-deletepolicy",
+   "title": "Delete SCP",
+   "needs_actions": [
+    "organizations:DeletePolicy"
+   ],
+   "primary_action": "organizations:DeletePolicy",
+   "service": "Organizations",
+   "category": "defense-evasion",
+   "grants": "Can delete an SCP outright, removing its guardrail everywhere",
+   "why": "this principal can call organizations:DeletePolicy to delete an SCP outright, removing its guardrail everywhere it was attached.",
+   "fix": "Restrict organizations:DeletePolicy to a break-glass management-account role.",
+   "tactic": "defense-evasion",
+   "mitre": {
+    "id": "T1562.001",
+    "name": "Impair Defenses: Disable or Modify Tools"
+   },
+   "tier": 1,
+   "combination": false,
+   "references": [
+    "https://attack.mitre.org/techniques/T1562/001/"
+   ],
+   "url": "https://pathbreak.io/aws-privilege-escalation-map/organizations-deletepolicy"
+  },
+  {
+   "id": "ec2-deleteflowlogs",
+   "title": "Delete VPC flow logs",
+   "needs_actions": [
+    "ec2:DeleteFlowLogs"
+   ],
+   "primary_action": "ec2:DeleteFlowLogs",
+   "service": "EC2",
+   "category": "defense-evasion",
+   "grants": "Can delete VPC flow logs, blinding network telemetry",
+   "why": "this principal can call ec2:DeleteFlowLogs to remove VPC/subnet/ENI flow logs, blinding network telemetry.",
+   "fix": "Restrict ec2:DeleteFlowLogs to a break-glass role.",
+   "tactic": "defense-evasion",
+   "mitre": {
+    "id": "T1562.008",
+    "name": "Impair Defenses: Disable or Modify Cloud Logs"
+   },
+   "tier": 1,
+   "combination": false,
+   "references": [
+    "https://attack.mitre.org/techniques/T1562/008/"
+   ],
+   "url": "https://pathbreak.io/aws-privilege-escalation-map/ec2-deleteflowlogs"
+  },
+  {
+   "id": "wafv2-deletewebacl",
+   "title": "Delete WAFv2 WebACL",
+   "needs_actions": [
+    "wafv2:DeleteWebACL"
+   ],
+   "primary_action": "wafv2:DeleteWebACL",
+   "service": "WAF",
+   "category": "defense-evasion",
+   "grants": "Can delete a WAF WebACL, dropping request filtering in front of the app",
+   "why": "this principal can call wafv2:DeleteWebACL to remove a WAF WebACL, dropping request filtering in front of the protected app.",
+   "fix": "Restrict wafv2:DeleteWebACL to a break-glass role. UpdateWebACL to default-Allow or DeleteLoggingConfiguration are variants.",
+   "tactic": "defense-evasion",
+   "mitre": {
+    "id": "T1562.001",
+    "name": "Impair Defenses: Disable or Modify Tools"
+   },
+   "tier": 1,
+   "combination": false,
+   "references": [
+    "https://attack.mitre.org/techniques/T1562/001/"
+   ],
+   "url": "https://pathbreak.io/aws-privilege-escalation-map/wafv2-deletewebacl"
+  },
+  {
+   "id": "guardduty-updatedetector",
+   "title": "Disable GuardDuty detector",
+   "needs_actions": [
+    "guardduty:UpdateDetector"
+   ],
+   "primary_action": "guardduty:UpdateDetector",
+   "service": "GuardDuty",
+   "category": "defense-evasion",
+   "grants": "Can disable this GuardDuty detector without deleting it",
+   "why": "this principal can call guardduty:UpdateDetector on the target with enable=false (or lengthen the finding-publishing frequency) to quietly turn off threat detection. Unlike DeleteDetector the detector still exists, so a config review sees it present but blind.",
+   "fix": "Restrict guardduty:UpdateDetector to a break-glass role; deny via SCP and alarm on the event.",
+   "tactic": "defense-evasion",
+   "mitre": {
+    "id": "T1562.001",
+    "name": "Impair Defenses: Disable or Modify Tools"
+   },
+   "tier": 1,
+   "combination": false,
+   "references": [
+    "https://attack.mitre.org/techniques/T1562/001/"
+   ],
+   "url": "https://pathbreak.io/aws-privilege-escalation-map/guardduty-updatedetector"
+  },
+  {
+   "id": "securityhub-disablesecurityhub",
+   "title": "Disable Security Hub",
+   "needs_actions": [
+    "securityhub:DisableSecurityHub"
+   ],
+   "primary_action": "securityhub:DisableSecurityHub",
+   "service": "Security Hub",
+   "category": "defense-evasion",
+   "grants": "Can disable Security Hub in this region, ending aggregated findings",
+   "why": "this principal can call securityhub:DisableSecurityHub to turn off Security Hub in the region, ending aggregated findings and compliance scoring.",
+   "fix": "Restrict securityhub:DisableSecurityHub to a break-glass role; deny via SCP.",
+   "tactic": "defense-evasion",
+   "mitre": {
+    "id": "T1562.001",
+    "name": "Impair Defenses: Disable or Modify Tools"
+   },
+   "tier": 1,
+   "combination": false,
+   "references": [
+    "https://attack.mitre.org/techniques/T1562/001/"
+   ],
+   "url": "https://pathbreak.io/aws-privilege-escalation-map/securityhub-disablesecurityhub"
+  },
+  {
+   "id": "lambda-invoke",
+   "title": "Invoke Lambda (run as its role)",
+   "needs_actions": [
+    "lambda:InvokeFunction"
+   ],
+   "primary_action": "lambda:InvokeFunction",
+   "service": "Lambda",
+   "category": "lambda-invoke",
+   "grants": "Can invoke this Lambda function and run it as its execution role",
+   "why": "this principal can call lambda:InvokeFunction on the target, verified against both this principal's identity policy and the target's resource (invoke) policy. The function runs as its execution role, so invoking it is code execution as that role, the target is not the prize but a hinge: the chain continues to the role it surrenders (lambda-cred-theft) and everything that role can reach.",
+   "fix": "Scope lambda:InvokeFunction and the function's resource policy; least-privilege the execution role.",
+   "tactic": "execution",
+   "mitre": {
+    "id": "T1648",
+    "name": "Serverless Execution"
+   },
+   "tier": 1,
+   "combination": false,
+   "references": [
+    "https://attack.mitre.org/techniques/T1648/"
+   ],
+   "url": "https://pathbreak.io/aws-privilege-escalation-map/lambda-invoke"
+  },
+  {
+   "id": "logs-putsubscriptionfilter",
+   "title": "Log group subscription exfil",
+   "needs_actions": [
+    "logs:PutSubscriptionFilter",
+    "iam:PassRole"
+   ],
+   "primary_action": "logs:PutSubscriptionFilter",
+   "service": "CloudWatch Logs",
+   "category": "data-exfil",
+   "grants": "Can stream this log group in real time to an attacker sink",
+   "why": "this principal can call logs:PutSubscriptionFilter on log group the target to stream every incoming log event in real time to an attacker-controlled Kinesis/Firehose/Lambda, exfiltrating application and audit logs continuously.",
+   "fix": "Restrict logs:PutSubscriptionFilter on the log group and iam:PassRole for the delivery role.",
+   "tactic": "exfiltration",
+   "mitre": {
+    "id": "T1537",
+    "name": "Transfer Data to Cloud Account"
+   },
+   "tier": 1,
+   "combination": true,
+   "references": [
+    "https://attack.mitre.org/techniques/T1537/"
+   ],
+   "url": "https://pathbreak.io/aws-privilege-escalation-map/logs-putsubscriptionfilter"
+  },
+  {
+   "id": "cloudtrail-puteventselectors",
+   "title": "Narrow CloudTrail event selectors",
+   "needs_actions": [
+    "cloudtrail:PutEventSelectors"
+   ],
+   "primary_action": "cloudtrail:PutEventSelectors",
+   "service": "CloudTrail",
+   "category": "defense-evasion",
+   "grants": "Can strip management/data events from this trail while leaving it enabled",
+   "why": "this principal can call cloudtrail:PutEventSelectors on trail the target to remove management or data event recording. Stealthier than StopLogging: the trail stays enabled and looks healthy on a console review, but the events the attacker cares about are no longer captured.",
+   "fix": "Restrict cloudtrail:PutEventSelectors to a break-glass role; deny org-wide via SCP and alarm on the event.",
+   "tactic": "defense-evasion",
+   "mitre": {
+    "id": "T1562.008",
+    "name": "Impair Defenses: Disable or Modify Cloud Logs"
+   },
+   "tier": 1,
+   "combination": false,
+   "references": [
+    "https://attack.mitre.org/techniques/T1562/008/"
+   ],
+   "url": "https://pathbreak.io/aws-privilege-escalation-map/cloudtrail-puteventselectors"
+  },
+  {
+   "id": "ecr-putimage-poison-hijack",
+   "title": "Poison an ECR image a privileged Lambda/ECS workload runs",
+   "needs_actions": [
+    "ecr:PutImage"
+   ],
+   "primary_action": "ecr:PutImage",
+   "service": "ECR",
+   "category": "artifact-poisoning",
+   "grants": "Can push a malicious image to a repo a privileged Lambda/ECS workload pulls, poisoning its next launch",
+   "why": "this principal can call ecr:PutImage to push a malicious image to a repository that the target's workload pulls from; on the workload's next image pull the attacker's image runs as the target. Because the graph shows the current binding - not the future pull - this is a speculative artifact-poisoning finding: it bites when the consumer re-pulls (an ECS relaunch on a mutable tag; a Lambda redeploy).",
+   "fix": "Restrict ecr:PutImage on this repo; pin consumers to immutable digests; enable ECR tag immutability; scan images before deploy.",
+   "tactic": "persistence",
+   "mitre": {
+    "id": "T1525",
+    "name": "Implant Internal Image"
+   },
+   "tier": 1,
+   "combination": false,
+   "references": [
+    "https://attack.mitre.org/techniques/T1525/"
+   ],
+   "url": "https://pathbreak.io/aws-privilege-escalation-map/ecr-putimage-poison-hijack"
+  },
+  {
+   "id": "ecr-pull",
+   "title": "Pull ECR image",
+   "needs_actions": [
+    "ecr:BatchGetImage",
+    "ecr:GetDownloadUrlForLayer"
+   ],
+   "primary_action": "ecr:BatchGetImage",
+   "service": "ECR",
+   "category": "ecr-pull",
+   "grants": "Can pull and read images from this ECR repository",
+   "why": "this principal can pull images from repository the target (ecr:BatchGetImage + ecr:GetDownloadUrlForLayer), verified against both this principal's identity policy and the target's repository policy. Container images frequently bake in credentials, tokens and source, pulling one is data/secret exfiltration.",
+   "fix": "Scope ecr:BatchGetImage / ecr:GetDownloadUrlForLayer and the repository policy.",
+   "tactic": "collection",
+   "mitre": {
+    "id": "T1530",
+    "name": "Data from Cloud Storage"
+   },
+   "tier": 1,
+   "combination": true,
+   "references": [
+    "https://attack.mitre.org/techniques/T1530/"
+   ],
+   "url": "https://pathbreak.io/aws-privilege-escalation-map/ecr-pull"
+  },
+  {
+   "id": "ec2-instanceconnect-sshkey",
+   "title": "Push SSH key via Instance Connect",
+   "needs_actions": [
+    "ec2-instance-connect:SendSSHPublicKey"
+   ],
+   "primary_action": "ec2-instance-connect:SendSSHPublicKey",
+   "service": "EC2 Instance Connect",
+   "category": "session-access",
+   "grants": "Can push an SSH key via Instance Connect and log into this instance",
+   "why": "this principal can call ec2-instance-connect:SendSSHPublicKey to push an ephemeral SSH key onto running instance the target and then SSH in over the network, landing on the box with OS-level code execution. From there this principal reads the instance's attached IAM role credentials from IMDS and pivots further. Unlike SSM Session Manager this requires a reachable SSH port (22) on the target, so it only works where the network path exists.",
+   "fix": "Restrict ec2-instance-connect:SendSSHPublicKey to break-glass principals; close inbound port 22 and prefer SSM Session Manager.",
+   "tactic": "lateral-movement",
+   "mitre": {
+    "id": "T1098.004",
+    "name": "Account Manipulation: SSH Authorized Keys"
+   },
+   "tier": 1,
+   "combination": false,
+   "references": [
+    "https://attack.mitre.org/techniques/T1098/004/"
+   ],
+   "url": "https://pathbreak.io/aws-privilege-escalation-map/ec2-instanceconnect-sshkey"
+  },
+  {
+   "id": "logs-getlogevents",
+   "title": "Read CloudWatch log events",
+   "needs_actions": [
+    "logs:GetLogEvents"
+   ],
+   "primary_action": "logs:GetLogEvents",
+   "service": "CloudWatch Logs",
+   "category": "log-read",
+   "grants": "Can read the stored log events of this CloudWatch log group",
+   "why": "this principal can call logs:GetLogEvents to read the stored log events of CloudWatch log group the target. Application and platform logs routinely contain access keys, bearer tokens, database connection strings and PII printed by careless code, so reading them is direct data exfiltration and, when a long-term credential is present, a pivot to whatever identity it belongs to. CloudWatch Logs is a public-endpoint, IAM-gated API, so this is a control-plane read with no network precondition; severity tracks the log group's sensitivity.",
+   "fix": "Restrict logs:GetLogEvents/FilterLogEvents/GetQueryResults to the principals that need them; scrub credentials/PII from logs and enable a CloudWatch Logs data-protection policy.",
+   "tactic": "credential-access",
+   "mitre": {
+    "id": "T1552",
+    "name": "Unsecured Credentials"
+   },
+   "tier": 1,
+   "combination": false,
+   "references": [
+    "https://attack.mitre.org/techniques/T1552/"
+   ],
+   "url": "https://pathbreak.io/aws-privilege-escalation-map/logs-getlogevents"
+  },
+  {
+   "id": "dynamodb-read",
+   "title": "Read DynamoDB table",
+   "needs_actions": [
+    "dynamodb:GetItem"
+   ],
+   "primary_action": "dynamodb:GetItem",
+   "service": "DynamoDB",
+   "category": "dynamodb-read",
+   "grants": "Can read items from this DynamoDB table",
+   "why": "this principal can call dynamodb:GetItem to read items from table the target, direct exfiltration of whatever the table holds. DynamoDB is a public-endpoint, IAM-gated API, so this is a control-plane read with no network precondition. The objective, not a stepping-stone; severity tracks the table's sensitivity.",
+   "fix": "Restrict dynamodb:GetItem/Query/Scan to the principals that need it.",
+   "tactic": "collection",
+   "mitre": {
+    "id": "T1530",
+    "name": "Data from Cloud Storage"
+   },
+   "tier": 1,
+   "combination": false,
+   "references": [
+    "https://attack.mitre.org/techniques/T1530/"
+   ],
+   "url": "https://pathbreak.io/aws-privilege-escalation-map/dynamodb-read"
+  },
+  {
+   "id": "ebs-direct-snapshot-block-read",
+   "title": "Read EBS snapshot blocks directly",
+   "needs_actions": [
+    "ebs:ListSnapshotBlocks",
+    "ebs:GetSnapshotBlock"
+   ],
+   "primary_action": "ebs:GetSnapshotBlock",
+   "service": "EBS",
+   "category": "data-access",
+   "grants": "Can read this EBS snapshot's raw blocks directly, no volume restore",
+   "why": "this principal can call ebs:ListSnapshotBlocks then ebs:GetSnapshotBlock to read the raw blocks of snapshot the target over the EBS direct APIs, reconstructing the full disk without ever creating a volume. An encrypted snapshot additionally requires kms:Decrypt on its key (a split-identity path).",
+   "fix": "Deny ebs:GetSnapshotBlock / ListSnapshotBlocks on the snapshot; for encrypted snapshots, also restrict kms:Decrypt on the key.",
+   "tactic": "collection",
+   "mitre": {
+    "id": "T1530",
+    "name": "Data from Cloud Storage"
+   },
+   "tier": 1,
+   "combination": true,
+   "references": [
+    "https://attack.mitre.org/techniques/T1530/"
+   ],
+   "url": "https://pathbreak.io/aws-privilege-escalation-map/ebs-direct-snapshot-block-read"
+  },
+  {
+   "id": "glue-getconnection-jdbc-creds",
+   "title": "Read Glue connection JDBC credentials",
+   "needs_actions": [
+    "glue:GetConnection"
+   ],
+   "primary_action": "glue:GetConnection",
+   "service": "Glue",
+   "category": "data-access",
+   "grants": "Can read this Glue connection's stored JDBC/DB password",
+   "why": "this principal can call glue:GetConnection on the target; Glue connections store JDBC/database passwords, so one read returns plaintext credentials to the backing database.",
+   "fix": "Restrict glue:GetConnection / GetConnections; store DB credentials in Secrets Manager referenced by the connection instead of inline.",
+   "tactic": "credential-access",
+   "mitre": {
+    "id": "T1555.006",
+    "name": "Credentials from Password Stores: Cloud Secrets Management Stores"
+   },
+   "tier": 1,
+   "combination": false,
+   "references": [
+    "https://attack.mitre.org/techniques/T1555/006/"
+   ],
+   "url": "https://pathbreak.io/aws-privilege-escalation-map/glue-getconnection-jdbc-creds"
+  },
+  {
+   "id": "s3-data-read",
+   "title": "Read S3 objects",
+   "needs_actions": [
+    "s3:GetObject"
+   ],
+   "primary_action": "s3:GetObject",
+   "service": "S3",
+   "category": "data-access",
+   "grants": "Can read the objects stored in this bucket",
+   "why": "this principal can call s3:GetObject to read the objects stored in bucket the target, verified against both this principal's identity policy and the target's bucket policy. This is the objective, not a stepping-stone: it is direct exfiltration of whatever data the target holds, the breach itself. Its severity is driven by the bucket's sensitivity, not by any further access it grants.",
+   "fix": "Restrict s3:GetObject and tighten the bucket policy.",
+   "tactic": "collection",
+   "mitre": {
+    "id": "T1530",
+    "name": "Data from Cloud Storage"
+   },
+   "tier": 1,
+   "combination": false,
+   "references": [
+    "https://attack.mitre.org/techniques/T1530/"
+   ],
+   "url": "https://pathbreak.io/aws-privilege-escalation-map/s3-data-read"
+  },
+  {
+   "id": "secrets-getsecretvalue",
+   "title": "Read Secrets Manager secret",
+   "needs_actions": [
+    "secretsmanager:GetSecretValue"
+   ],
+   "primary_action": "secretsmanager:GetSecretValue",
+   "service": "Secrets Manager",
+   "category": "secret-read",
+   "grants": "Can read this Secrets Manager secret value",
+   "why": "this principal can call secretsmanager:GetSecretValue to read the target, verified against both this principal's identity policy and the target's resource policy. A secret frequently holds another principal's long-term credentials (DB passwords, API keys, IAM access keys), so reading it is both the objective and a lateral-movement multiplier, control of the secret can become control of a new identity.",
+   "fix": "Scope the secret's resource policy and the principal's secretsmanager:GetSecretValue; rotate exposed secrets.",
+   "tactic": "credential-access",
+   "mitre": {
+    "id": "T1555.006",
+    "name": "Credentials from Password Stores: Cloud Secrets Management Stores"
+   },
+   "tier": 1,
+   "combination": false,
+   "references": [
+    "https://attack.mitre.org/techniques/T1555/006/"
+   ],
+   "url": "https://pathbreak.io/aws-privilege-escalation-map/secrets-getsecretvalue"
+  },
+  {
+   "id": "ssm-getparameter",
+   "title": "Read SSM SecureString parameter",
+   "needs_actions": [
+    "ssm:GetParameter"
+   ],
+   "primary_action": "ssm:GetParameter",
+   "service": "Systems Manager",
+   "category": "param-read",
+   "grants": "Can read and decrypt this SSM SecureString parameter",
+   "why": "this principal can call ssm:GetParameter to read SecureString parameter the target, decrypting its value. SecureString parameters commonly store credentials, API keys and tokens, so reading one is direct credential theft and a pivot to whatever identity those credentials belong to.",
+   "fix": "Restrict ssm:GetParameter; prefer Secrets Manager with rotation for credentials.",
+   "tactic": "credential-access",
+   "mitre": {
+    "id": "T1555.006",
+    "name": "Credentials from Password Stores: Cloud Secrets Management Stores"
+   },
+   "tier": 1,
+   "combination": false,
+   "references": [
+    "https://attack.mitre.org/techniques/T1555/006/"
+   ],
+   "url": "https://pathbreak.io/aws-privilege-escalation-map/ssm-getparameter"
+  },
+  {
+   "id": "ssm-getparametersbypath",
+   "title": "Recursively dump SSM SecureString path",
+   "needs_actions": [
+    "ssm:GetParametersByPath"
+   ],
+   "primary_action": "ssm:GetParametersByPath",
+   "service": "Systems Manager",
+   "category": "param-read",
+   "grants": "Can recursively dump every SecureString parameter under this path in one call",
+   "why": "this principal can call ssm:GetParametersByPath --recursive --with-decryption to read SecureString parameter the target together with every other parameter beneath its path, in a single API call. This is authorised independently of ssm:GetParameter, so a principal holding only GetParametersByPath can dump an entire credential tree even where GetParameter is denied, and it needs no prior knowledge of parameter names.",
+   "fix": "Restrict ssm:GetParametersByPath - it is NOT covered by denying ssm:GetParameter - and scope it to a narrow path prefix.",
+   "tactic": "credential-access",
+   "mitre": {
+    "id": "T1555.006",
+    "name": "Credentials from Password Stores: Cloud Secrets Management Stores"
+   },
+   "tier": 1,
+   "combination": false,
+   "references": [
+    "https://attack.mitre.org/techniques/T1555/006/"
+   ],
+   "url": "https://pathbreak.io/aws-privilege-escalation-map/ssm-getparametersbypath"
+  },
+  {
+   "id": "iam-updateloginprofile",
+   "title": "Reset console password for user",
+   "needs_actions": [
+    "iam:UpdateLoginProfile"
+   ],
+   "primary_action": "iam:UpdateLoginProfile",
+   "service": "IAM",
+   "category": "cred-mint",
+   "grants": "Can reset this user's console password and take it over",
+   "why": "this principal can call iam:UpdateLoginProfile to reset the console password of user the target that already has one, locking in a password this principal controls and gaining interactive console access as the target. Same takeover outcome as creating a profile, for a user that already had console access.",
+   "fix": "Remove iam:UpdateLoginProfile from the principal.",
+   "tactic": "persistence",
+   "mitre": {
+    "id": "T1098.001",
+    "name": "Account Manipulation: Additional Cloud Credentials"
+   },
+   "tier": 1,
+   "combination": false,
+   "references": [
+    "https://attack.mitre.org/techniques/T1098/001/"
+   ],
+   "url": "https://pathbreak.io/aws-privilege-escalation-map/iam-updateloginprofile"
+  },
+  {
+   "id": "rds-modifydbinstance-resetpw",
+   "title": "Reset RDS master password",
+   "needs_actions": [
+    "rds:ModifyDBInstance"
+   ],
+   "primary_action": "rds:ModifyDBInstance",
+   "service": "RDS",
+   "category": "data-access",
+   "grants": "Can reset the master password on this live RDS instance",
+   "why": "this principal can call rds:ModifyDBInstance on the target to set a new MasterUserPassword, then connect as the master user and read everything. No snapshot or IAM-auth needed; the only gate is network reachability.",
+   "fix": "Restrict rds:ModifyDBInstance on the instance; alarm on MasterUserPassword changes.",
+   "tactic": "collection",
+   "mitre": {
+    "id": "T1098",
+    "name": "Account Manipulation"
+   },
+   "tier": 1,
+   "combination": false,
+   "references": [
+    "https://attack.mitre.org/techniques/T1098/"
+   ],
+   "url": "https://pathbreak.io/aws-privilege-escalation-map/rds-modifydbinstance-resetpw"
+  },
+  {
+   "id": "iam-delete-createaccesskey",
+   "title": "Rotate access key to create credentials for user",
+   "needs_actions": [
+    "iam:CreateAccessKey",
+    "iam:DeleteAccessKey"
+   ],
+   "primary_action": "iam:CreateAccessKey",
+   "service": "IAM",
+   "category": "cred-mint",
+   "grants": "Can rotate out a key to create a new access key for this user",
+   "why": "this principal can call iam:DeleteAccessKey to remove one of user the target's existing access keys and then iam:CreateAccessKey to create a brand-new long-lived key under this principal's control, without knowing any of the target's secrets. Unlike plain key creating, the added delete bypasses AWS's two-access-key-per-user limit, so this works even when the target already holds the maximum of two keys. From then on this principal authenticates the API as the target; the new key is independent of the target's other credentials, so it is both an account takeover and a durable persistence foothold.",
+   "fix": "Remove iam:CreateAccessKey and iam:DeleteAccessKey from the principal.",
+   "tactic": "persistence",
+   "mitre": {
+    "id": "T1098.001",
+    "name": "Account Manipulation: Additional Cloud Credentials"
+   },
+   "tier": 1,
+   "combination": true,
+   "references": [
+    "https://attack.mitre.org/techniques/T1098/001/"
+   ],
+   "url": "https://pathbreak.io/aws-privilege-escalation-map/iam-delete-createaccesskey"
+  },
+  {
+   "id": "s3-replication-exfil",
+   "title": "S3 replication exfil",
+   "needs_actions": [
+    "s3:PutReplicationConfiguration",
+    "iam:PassRole"
+   ],
+   "primary_action": "s3:PutReplicationConfiguration",
+   "service": "S3",
+   "category": "data-exfil",
+   "grants": "Can configure replication to copy this bucket out to an attacker bucket",
+   "why": "this principal can call s3:PutReplicationConfiguration on bucket the target to set up continuous replication to an attacker-owned destination bucket, exfiltrating every current and future object out of band.",
+   "fix": "Restrict s3:PutReplicationConfiguration on the bucket and iam:PassRole for the replication role.",
+   "tactic": "exfiltration",
+   "mitre": {
+    "id": "T1537",
+    "name": "Transfer Data to Cloud Account"
+   },
+   "tier": 1,
+   "combination": true,
+   "references": [
+    "https://attack.mitre.org/techniques/T1537/"
+   ],
+   "url": "https://pathbreak.io/aws-privilege-escalation-map/s3-replication-exfil"
+  },
+  {
+   "id": "kms-schedulekeydeletion",
+   "title": "Schedule KMS key deletion",
+   "needs_actions": [
+    "kms:ScheduleKeyDeletion"
+   ],
+   "primary_action": "kms:ScheduleKeyDeletion",
+   "service": "KMS",
+   "category": "key-destruction",
+   "grants": "Can schedule this KMS key for deletion, destroying everything it encrypts",
+   "why": "this principal can call kms:ScheduleKeyDeletion on customer-managed key the target. Once the waiting period elapses the key material is destroyed and every object, snapshot, secret and parameter encrypted under it becomes permanently unreadable - a one-call, account-wide data-destruction move that no backup of the ciphertext can undo. Deleting the key also blinds anything that depended on decrypting with it.",
+   "fix": "Restrict kms:ScheduleKeyDeletion to key administrators; deny it via SCP outside a break-glass role.",
+   "tactic": "impact",
+   "mitre": {
+    "id": "T1485",
+    "name": "Data Destruction"
+   },
+   "tier": 1,
+   "combination": false,
+   "references": [
+    "https://attack.mitre.org/techniques/T1485/"
+   ],
+   "url": "https://pathbreak.io/aws-privilege-escalation-map/kms-schedulekeydeletion"
+  },
+  {
+   "id": "iam-createloginprofile",
+   "title": "Set console password for user",
+   "needs_actions": [
+    "iam:CreateLoginProfile"
+   ],
+   "primary_action": "iam:CreateLoginProfile",
+   "service": "IAM",
+   "category": "cred-mint",
+   "grants": "Can set a console password for this user that had none",
+   "why": "this principal can call iam:CreateLoginProfile to set a console password for user the target that currently has none (e.g. a programmatic-only service user). That gives this principal interactive AWS console access as the target, a takeover of an account that previously had no human login path, and the password persists until changed.",
+   "fix": "Remove iam:CreateLoginProfile from the principal.",
+   "tactic": "persistence",
+   "mitre": {
+    "id": "T1098.001",
+    "name": "Account Manipulation: Additional Cloud Credentials"
+   },
+   "tier": 1,
+   "combination": false,
+   "references": [
+    "https://attack.mitre.org/techniques/T1098/001/"
+   ],
+   "url": "https://pathbreak.io/aws-privilege-escalation-map/iam-createloginprofile"
+  },
+  {
+   "id": "ami-share",
+   "title": "Share AMI out",
+   "needs_actions": [
+    "ec2:ModifyImageAttribute"
+   ],
+   "primary_action": "ec2:ModifyImageAttribute",
+   "service": "EC2",
+   "category": "ami-exfil",
+   "grants": "Can share this AMI out to an attacker account",
+   "why": "this principal can call ec2:ModifyImageAttribute on the target to share the AMI with an attacker-controlled account. Images routinely bake in data, source and credentials, so sharing one exfiltrates whatever it holds, and lets the attacker launch instances from it in their own account.",
+   "fix": "Restrict ec2:ModifyImageAttribute; review AMI launchPermission sharing.",
+   "tactic": "exfiltration",
+   "mitre": {
+    "id": "T1537",
+    "name": "Transfer Data to Cloud Account"
+   },
+   "tier": 1,
+   "combination": false,
+   "references": [
+    "https://attack.mitre.org/techniques/T1537/"
+   ],
+   "url": "https://pathbreak.io/aws-privilege-escalation-map/ami-share"
+  },
+  {
+   "id": "rds-cluster-snapshot-share",
+   "title": "Share Aurora cluster snapshot out",
+   "needs_actions": [
+    "rds:ModifyDBClusterSnapshotAttribute"
+   ],
+   "primary_action": "rds:ModifyDBClusterSnapshotAttribute",
+   "service": "RDS",
+   "category": "data-exfil",
+   "grants": "Can share this Aurora cluster snapshot out to an attacker account",
+   "why": "this principal can call rds:ModifyDBClusterSnapshotAttribute to share an Aurora cluster snapshot the target with an attacker account. The existing rds-snapshot-share rule covers only instance snapshots, so Aurora clusters are a blind spot today.",
+   "fix": "Restrict rds:ModifyDBClusterSnapshotAttribute on the cluster snapshot.",
+   "tactic": "exfiltration",
+   "mitre": {
+    "id": "T1537",
+    "name": "Transfer Data to Cloud Account"
+   },
+   "tier": 1,
+   "combination": false,
+   "references": [
+    "https://attack.mitre.org/techniques/T1537/"
+   ],
+   "url": "https://pathbreak.io/aws-privilege-escalation-map/rds-cluster-snapshot-share"
+  },
+  {
+   "id": "ebs-snapshot-share",
+   "title": "Share EBS snapshot out",
+   "needs_actions": [
+    "ec2:ModifySnapshotAttribute"
+   ],
+   "primary_action": "ec2:ModifySnapshotAttribute",
+   "service": "EC2",
+   "category": "snapshot-exfil",
+   "grants": "Can share this EBS snapshot out to an attacker account",
+   "why": "this principal can call ec2:ModifySnapshotAttribute on the target to add an attacker-controlled account to its createVolumePermission, sharing a full disk copy out of the account. This bypasses every control on the live volume: the attacker restores the snapshot in their own account and reads it at leisure.",
+   "fix": "Restrict ec2:ModifySnapshotAttribute; deny createVolumePermission changes via SCP/policy.",
+   "tactic": "exfiltration",
+   "mitre": {
+    "id": "T1537",
+    "name": "Transfer Data to Cloud Account"
+   },
+   "tier": 1,
+   "combination": false,
+   "references": [
+    "https://attack.mitre.org/techniques/T1537/"
+   ],
+   "url": "https://pathbreak.io/aws-privilege-escalation-map/ebs-snapshot-share"
+  },
+  {
+   "id": "rds-snapshot-share",
+   "title": "Share RDS snapshot out",
+   "needs_actions": [
+    "rds:ModifyDBSnapshotAttribute"
+   ],
+   "primary_action": "rds:ModifyDBSnapshotAttribute",
+   "service": "RDS",
+   "category": "snapshot-exfil",
+   "grants": "Can share this RDS snapshot out to an attacker account",
+   "why": "this principal can call rds:ModifyDBSnapshotAttribute on the target to share a full database copy with an attacker-controlled account, exfiltration that bypasses the live DB's network and auth controls (the attacker restores the snapshot in their own account).",
+   "fix": "Restrict rds:ModifyDBSnapshotAttribute; deny restore/share changes via SCP/policy.",
+   "tactic": "exfiltration",
+   "mitre": {
+    "id": "T1537",
+    "name": "Transfer Data to Cloud Account"
+   },
+   "tier": 1,
+   "combination": false,
+   "references": [
+    "https://attack.mitre.org/techniques/T1537/"
+   ],
+   "url": "https://pathbreak.io/aws-privilege-escalation-map/rds-snapshot-share"
+  },
+  {
+   "id": "ebs-createsnapshot",
+   "title": "Snapshot EBS volume for exfil",
+   "needs_actions": [
+    "ec2:CreateSnapshot"
+   ],
+   "primary_action": "ec2:CreateSnapshot",
+   "service": "EC2",
+   "category": "volume-exfil",
+   "grants": "Can snapshot this EBS volume and read the copy elsewhere",
+   "why": "this principal can call ec2:CreateSnapshot on the target to take a full point-in-time copy of the disk, then restore or share that copy out of band. Unlike detach-and-reattach this needs one permission, no instance in the volume's Availability Zone, and does not disturb the running workload - which makes it the quieter and far more common route to the same data.",
+   "fix": "Restrict ec2:CreateSnapshot to backup automation; encrypt volumes with a CMK the principal cannot use, and deny ec2:ModifySnapshotAttribute so a copy cannot be shared out.",
+   "tactic": "collection",
+   "mitre": {
+    "id": "T1005",
+    "name": "Data from Local System"
+   },
+   "tier": 1,
+   "combination": false,
+   "references": [
+    "https://attack.mitre.org/techniques/T1005/"
+   ],
+   "url": "https://pathbreak.io/aws-privilege-escalation-map/ebs-createsnapshot"
+  },
+  {
+   "id": "ebs-volume-theft",
+   "title": "Steal EBS volume by reattachment",
+   "needs_actions": [
+    "ec2:DetachVolume",
+    "ec2:AttachVolume"
+   ],
+   "primary_action": "ec2:DetachVolume",
+   "service": "EC2",
+   "category": "volume-exfil",
+   "grants": "Can detach this EBS volume and reattach it to an attacker-controlled instance",
+   "why": "this principal can call ec2:DetachVolume on the target and ec2:AttachVolume to reattach it to an instance it controls, then mount and read the filesystem offline. This bypasses every OS-level and application-level control on the original host - no snapshot is created and no data-plane credential is needed, the disk simply changes owner.",
+   "fix": "Restrict ec2:DetachVolume / ec2:AttachVolume to the instances and volumes that need them; encrypt volumes with a CMK the principal cannot use.",
+   "tactic": "collection",
+   "mitre": {
+    "id": "T1005",
+    "name": "Data from Local System"
+   },
+   "tier": 1,
+   "combination": true,
+   "references": [
+    "https://attack.mitre.org/techniques/T1005/"
+   ],
+   "url": "https://pathbreak.io/aws-privilege-escalation-map/ebs-volume-theft"
+  },
+  {
+   "id": "config-stoprecorder",
+   "title": "Stop AWS Config recorder",
+   "needs_actions": [
+    "config:StopConfigurationRecorder"
+   ],
+   "primary_action": "config:StopConfigurationRecorder",
+   "service": "Config",
+   "category": "defense-evasion",
+   "grants": "Can stop this AWS Config recorder, ending configuration history",
+   "why": "this principal can call config:StopConfigurationRecorder on the target, halting AWS Config's recording of resource configuration changes. Config rules stop evaluating and the configuration timeline goes blank, so subsequent changes leave no configuration-history trace even though CloudTrail may still record the API calls.",
+   "fix": "Restrict config:StopConfigurationRecorder to a break-glass role; deny it via SCP (the action has no resource-level scope, so the Deny must use Resource \"*\").",
+   "tactic": "defense-evasion",
+   "mitre": {
+    "id": "T1562.001",
+    "name": "Impair Defenses: Disable or Modify Tools"
+   },
+   "tier": 1,
+   "combination": false,
+   "references": [
+    "https://attack.mitre.org/techniques/T1562/001/"
+   ],
+   "url": "https://pathbreak.io/aws-privilege-escalation-map/config-stoprecorder"
+  },
+  {
+   "id": "cloudtrail-stoplogging",
+   "title": "Stop CloudTrail logging",
+   "needs_actions": [
+    "cloudtrail:StopLogging"
+   ],
+   "primary_action": "cloudtrail:StopLogging",
+   "service": "CloudTrail",
+   "category": "defense-evasion",
+   "grants": "Can stop this CloudTrail trail from recording API activity",
+   "why": "this principal can call cloudtrail:StopLogging on trail the target, halting management- and data-event recording without deleting anything. The trail still exists and still looks configured, so the gap is easy to miss on a console review, and every action the attacker takes afterwards goes unrecorded in that trail.",
+   "fix": "Restrict cloudtrail:StopLogging to a break-glass role; deny it org-wide via SCP and alarm on the event.",
+   "tactic": "defense-evasion",
+   "mitre": {
+    "id": "T1562.008",
+    "name": "Impair Defenses: Disable or Modify Cloud Logs"
+   },
+   "tier": 1,
+   "combination": false,
+   "references": [
+    "https://attack.mitre.org/techniques/T1562/008/"
+   ],
+   "url": "https://pathbreak.io/aws-privilege-escalation-map/cloudtrail-stoplogging"
+  },
+  {
+   "id": "iam-strip-mfa",
+   "title": "Strip MFA from user",
+   "needs_actions": [
+    "iam:DeactivateMFADevice"
+   ],
+   "primary_action": "iam:DeactivateMFADevice",
+   "service": "IAM",
+   "category": "defense-evasion",
+   "grants": "Can remove the MFA device from this user, weakening it for takeover",
+   "why": "this principal can call iam:DeactivateMFADevice on user the target, removing the MFA requirement on that identity. Combined with a password reset or access-key create this turns a partially-protected account into a fully usable one.",
+   "fix": "Remove iam:DeactivateMFADevice from the principal; restrict MFA administration to a break-glass role and alarm on the event.",
+   "tactic": "defense-evasion",
+   "mitre": {
+    "id": "T1556.006",
+    "name": "Modify Authentication Process: Multi-Factor Authentication"
+   },
+   "tier": 1,
+   "combination": false,
+   "references": [
+    "https://attack.mitre.org/techniques/T1556/006/"
+   ],
+   "url": "https://pathbreak.io/aws-privilege-escalation-map/iam-strip-mfa"
+  },
+  {
+   "id": "iam-create-saml-provider-backdoor",
+   "title": "Take over a SAML provider to assume trusting roles",
+   "needs_actions": [
+    "iam:UpdateSAMLProvider"
+   ],
+   "primary_action": "iam:UpdateSAMLProvider",
+   "service": "IAM",
+   "category": "federation-provider-takeover",
+   "grants": "Can replace the SAML provider this role trusts, forging federated logins as it",
+   "why": "this principal can call iam:UpdateSAMLProvider to replace the SAML metadata document that the target trusts, making attacker-created SAML assertions valid. It then calls sts:AssumeRoleWithSAML to assume the target directly - that STS call is authorised by the target's trust policy (which already trusts the provider), not by any identity permission, so no secondary action is needed. If the target is privileged this is a full federation takeover.",
+   "fix": "Restrict iam:UpdateSAMLProvider to break-glass admins; alarm on it (CloudTrail); pin role trust to specific SAML attributes.",
+   "tactic": "persistence",
+   "mitre": {
+    "id": "T1556",
+    "name": "Modify Authentication Process"
+   },
+   "tier": 1,
+   "combination": false,
+   "references": [
+    "https://attack.mitre.org/techniques/T1556/",
+    "https://docs.aws.amazon.com/IAM/latest/UserGuide/id_roles_providers_saml.html"
+   ],
+   "url": "https://pathbreak.io/aws-privilege-escalation-map/iam-create-saml-provider-backdoor"
+  },
+  {
+   "id": "iam-create-oidc-provider-backdoor",
+   "title": "Take over an OIDC provider to assume trusting roles",
+   "needs_actions": [
+    "iam:UpdateOpenIDConnectProviderThumbprint"
+   ],
+   "primary_action": "iam:UpdateOpenIDConnectProviderThumbprint",
+   "service": "IAM",
+   "category": "federation-provider-takeover",
+   "grants": "Can re-point the OIDC provider this role trusts, forging federated logins as it",
+   "why": "this principal can call iam:UpdateOpenIDConnectProviderThumbprint to change the trusted thumbprint of the OIDC provider the target trusts (or add a client ID), making tokens from an attacker-controlled IdP valid. It then calls sts:AssumeRoleWithWebIdentity to assume the target directly - authorised by the target's trust policy, not by any identity permission. If the target is privileged this is a full federation takeover.",
+   "fix": "Restrict iam:UpdateOpenIDConnectProviderThumbprint / iam:AddClientIDToOpenIDConnectProvider to break-glass admins; alarm on them (CloudTrail); pin role trust to specific sub/aud claims.",
+   "tactic": "persistence",
+   "mitre": {
+    "id": "T1556",
+    "name": "Modify Authentication Process"
+   },
+   "tier": 1,
+   "combination": false,
+   "references": [
+    "https://attack.mitre.org/techniques/T1556/",
+    "https://docs.aws.amazon.com/IAM/latest/UserGuide/id_roles_providers_oidc.html"
+   ],
+   "url": "https://pathbreak.io/aws-privilege-escalation-map/iam-create-oidc-provider-backdoor"
+  }
+ ]
+}
