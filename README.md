@@ -7,6 +7,7 @@
 <p align="center">See the abusable IAM permissions your principals hold, so you can tighten them before an attacker does.</p>
 
 <p align="center">
+  <a href="https://pypi.org/project/pathbreak-audit/"><img src="https://img.shields.io/pypi/v/pathbreak-audit.svg?color=8b5cf6" alt="PyPI"></a>
   <img src="https://img.shields.io/badge/License-MIT-8b5cf6.svg" alt="MIT License">
   <img src="https://img.shields.io/badge/python-3.8%2B-6366f1.svg" alt="Python 3.8+">
   <img src="https://img.shields.io/badge/access-read--only-22d3ee.svg" alt="Read only">
