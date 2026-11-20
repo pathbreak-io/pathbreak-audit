@@ -1,6 +1,6 @@
 {
  "schema": 1,
- "generated": "2026-10-21",
+ "generated": "2026-11-20",
  "source": "https://pathbreak.io/aws-privilege-escalation-map",
  "count": 159,
  "checks": [
@@ -24,7 +24,8 @@
    "tier": 3,
    "combination": false,
    "references": [
-    "https://attack.mitre.org/techniques/T1098/003/"
+    "https://attack.mitre.org/techniques/T1098/003/",
+    "https://pathfinding.cloud/paths/iam-009"
    ],
    "url": "https://pathbreak.io/aws-privilege-escalation-map/iam-attachrolepolicy"
   },
@@ -48,7 +49,8 @@
    "tier": 3,
    "combination": false,
    "references": [
-    "https://attack.mitre.org/techniques/T1098/003/"
+    "https://attack.mitre.org/techniques/T1098/003/",
+    "https://pathfinding.cloud/paths/iam-008"
    ],
    "url": "https://pathbreak.io/aws-privilege-escalation-map/iam-attachuserpolicy"
   },
@@ -72,7 +74,8 @@
    "tier": 3,
    "combination": false,
    "references": [
-    "https://attack.mitre.org/techniques/T1098/003/"
+    "https://attack.mitre.org/techniques/T1098/003/",
+    "https://pathfinding.cloud/paths/iam-001"
    ],
    "url": "https://pathbreak.io/aws-privilege-escalation-map/iam-createpolicyversion"
   },
@@ -196,7 +199,8 @@
    "tier": 3,
    "combination": false,
    "references": [
-    "https://attack.mitre.org/techniques/T1578/"
+    "https://attack.mitre.org/techniques/T1578/",
+    "https://pathfinding.cloud/paths/apprunner-002"
    ],
    "url": "https://pathbreak.io/aws-privilege-escalation-map/apprunner-updateservice-hijack"
   },
@@ -220,7 +224,8 @@
    "tier": 3,
    "combination": false,
    "references": [
-    "https://attack.mitre.org/techniques/T1578/"
+    "https://attack.mitre.org/techniques/T1578/",
+    "https://pathfinding.cloud/paths/batch-002"
    ],
    "url": "https://pathbreak.io/aws-privilege-escalation-map/batch-submitjob-hijack"
   },
@@ -244,7 +249,8 @@
    "tier": 3,
    "combination": false,
    "references": [
-    "https://attack.mitre.org/techniques/T1578/"
+    "https://attack.mitre.org/techniques/T1578/",
+    "https://pathfinding.cloud/paths/cloudformation-002"
    ],
    "url": "https://pathbreak.io/aws-privilege-escalation-map/cfn-updatestack-hijack"
   },
@@ -269,7 +275,8 @@
    "tier": 3,
    "combination": true,
    "references": [
-    "https://attack.mitre.org/techniques/T1578/"
+    "https://attack.mitre.org/techniques/T1578/",
+    "https://pathfinding.cloud/paths/cloudformation-005"
    ],
    "url": "https://pathbreak.io/aws-privilege-escalation-map/cfn-changeset-hijack"
   },
@@ -293,7 +300,8 @@
    "tier": 3,
    "combination": false,
    "references": [
-    "https://attack.mitre.org/techniques/T1578/"
+    "https://attack.mitre.org/techniques/T1578/",
+    "https://pathfinding.cloud/paths/codebuild-002"
    ],
    "url": "https://pathbreak.io/aws-privilege-escalation-map/codebuild-startbuild-hijack"
   },
@@ -317,7 +325,8 @@
    "tier": 3,
    "combination": false,
    "references": [
-    "https://attack.mitre.org/techniques/T1578/"
+    "https://attack.mitre.org/techniques/T1578/",
+    "https://pathfinding.cloud/paths/codebuild-003"
    ],
    "url": "https://pathbreak.io/aws-privilege-escalation-map/codebuild-startbuildbatch-hijack"
   },
@@ -343,7 +352,8 @@
    "tier": 3,
    "combination": true,
    "references": [
-    "https://attack.mitre.org/techniques/T1578/"
+    "https://attack.mitre.org/techniques/T1578/",
+    "https://pathfinding.cloud/paths/ec2-002"
    ],
    "url": "https://pathbreak.io/aws-privilege-escalation-map/ec2-modify-userdata-hijack"
   },
@@ -367,7 +377,8 @@
    "tier": 3,
    "combination": false,
    "references": [
-    "https://attack.mitre.org/techniques/T1578/"
+    "https://attack.mitre.org/techniques/T1578/",
+    "https://pathfinding.cloud/paths/glue-002"
    ],
    "url": "https://pathbreak.io/aws-privilege-escalation-map/glue-updatedevendpoint-hijack"
   },
@@ -441,7 +452,8 @@
    "tier": 3,
    "combination": false,
    "references": [
-    "https://attack.mitre.org/techniques/T1578/"
+    "https://attack.mitre.org/techniques/T1578/",
+    "https://pathfinding.cloud/paths/lambda-003"
    ],
    "url": "https://pathbreak.io/aws-privilege-escalation-map/lambda-updatefunctioncode-hijack"
   },
@@ -492,7 +504,8 @@
    "tier": 3,
    "combination": true,
    "references": [
-    "https://attack.mitre.org/techniques/T1578/"
+    "https://attack.mitre.org/techniques/T1578/",
+    "https://pathfinding.cloud/paths/sagemaker-005"
    ],
    "url": "https://pathbreak.io/aws-privilege-escalation-map/sagemaker-lifecycleconfig-hijack"
   },
@@ -516,7 +529,8 @@
    "tier": 3,
    "combination": false,
    "references": [
-    "https://attack.mitre.org/techniques/T1578/"
+    "https://attack.mitre.org/techniques/T1578/",
+    "https://pathfinding.cloud/paths/sagemaker-004"
    ],
    "url": "https://pathbreak.io/aws-privilege-escalation-map/sagemaker-presigned-notebook-url"
   },
@@ -541,7 +555,8 @@
    "tier": 3,
    "combination": true,
    "references": [
-    "https://attack.mitre.org/techniques/T1578/"
+    "https://attack.mitre.org/techniques/T1578/",
+    "https://pathfinding.cloud/paths/stepfunctions-002"
    ],
    "url": "https://pathbreak.io/aws-privilege-escalation-map/stepfunctions-updatestatemachine-hijack"
   },
@@ -565,7 +580,8 @@
    "tier": 3,
    "combination": false,
    "references": [
-    "https://attack.mitre.org/techniques/T1098/003/"
+    "https://attack.mitre.org/techniques/T1098/003/",
+    "https://pathfinding.cloud/paths/iam-005"
    ],
    "url": "https://pathbreak.io/aws-privilege-escalation-map/iam-putrolepolicy"
   },
@@ -589,7 +605,8 @@
    "tier": 3,
    "combination": false,
    "references": [
-    "https://attack.mitre.org/techniques/T1098/003/"
+    "https://attack.mitre.org/techniques/T1098/003/",
+    "https://pathfinding.cloud/paths/iam-007"
    ],
    "url": "https://pathbreak.io/aws-privilege-escalation-map/iam-putuserpolicy"
   },
@@ -691,7 +708,8 @@
    "tier": 2,
    "combination": false,
    "references": [
-    "https://attack.mitre.org/techniques/T1098/003/"
+    "https://attack.mitre.org/techniques/T1098/003/",
+    "https://pathfinding.cloud/paths/iam-013"
    ],
    "url": "https://pathbreak.io/aws-privilege-escalation-map/iam-addusertogroup"
   },
@@ -764,7 +782,8 @@
    "tier": 2,
    "combination": false,
    "references": [
-    "https://attack.mitre.org/techniques/T1098/003/"
+    "https://attack.mitre.org/techniques/T1098/003/",
+    "https://pathfinding.cloud/paths/iam-010"
    ],
    "url": "https://pathbreak.io/aws-privilege-escalation-map/iam-attachgrouppolicy"
   },
@@ -814,7 +833,8 @@
    "tier": 2,
    "combination": true,
    "references": [
-    "https://attack.mitre.org/techniques/T1078/004/"
+    "https://attack.mitre.org/techniques/T1078/004/",
+    "https://pathfinding.cloud/paths/cognitoidentity-001"
    ],
    "url": "https://pathbreak.io/aws-privilege-escalation-map/cognito-identity-setidentitypoolroles-passrole"
   },
@@ -1059,7 +1079,8 @@
    "tier": 2,
    "combination": true,
    "references": [
-    "https://attack.mitre.org/techniques/T1578/"
+    "https://attack.mitre.org/techniques/T1578/",
+    "https://pathfinding.cloud/paths/bedrock-002"
    ],
    "url": "https://pathbreak.io/aws-privilege-escalation-map/bedrock-agentcore-session-hijack"
   },
@@ -1084,7 +1105,8 @@
    "tier": 2,
    "combination": true,
    "references": [
-    "https://attack.mitre.org/techniques/T1578/"
+    "https://attack.mitre.org/techniques/T1578/",
+    "https://pathfinding.cloud/paths/codedeploy-001"
    ],
    "url": "https://pathbreak.io/aws-privilege-escalation-map/codedeploy-createdeployment-hijack"
   },
@@ -1109,7 +1131,8 @@
    "tier": 2,
    "combination": true,
    "references": [
-    "https://attack.mitre.org/techniques/T1578/"
+    "https://attack.mitre.org/techniques/T1578/",
+    "https://pathfinding.cloud/paths/ec2instanceconnect-003"
    ],
    "url": "https://pathbreak.io/aws-privilege-escalation-map/ec2-instance-connect-sendsshpublickey-hijack"
   },
@@ -1134,7 +1157,9 @@
    "tier": 2,
    "combination": true,
    "references": [
-    "https://attack.mitre.org/techniques/T1578/"
+    "https://attack.mitre.org/techniques/T1578/",
+    "https://pathfinding.cloud/paths/ec2-004",
+    "https://pathfinding.cloud/paths/ec2-005"
    ],
    "url": "https://pathbreak.io/aws-privilege-escalation-map/ec2-launch-template-userdata-injection"
   },
@@ -1231,7 +1256,8 @@
    "tier": 2,
    "combination": true,
    "references": [
-    "https://attack.mitre.org/techniques/T1648/"
+    "https://attack.mitre.org/techniques/T1648/",
+    "https://pathfinding.cloud/paths/apprunner-001"
    ],
    "url": "https://pathbreak.io/aws-privilege-escalation-map/apprunner-passrole-create"
   },
@@ -1283,7 +1309,8 @@
    "tier": 2,
    "combination": true,
    "references": [
-    "https://attack.mitre.org/techniques/T1610/"
+    "https://attack.mitre.org/techniques/T1610/",
+    "https://pathfinding.cloud/paths/batch-001"
    ],
    "url": "https://pathbreak.io/aws-privilege-escalation-map/batch-passrole-create"
   },
@@ -1310,7 +1337,8 @@
    "tier": 2,
    "combination": true,
    "references": [
-    "https://attack.mitre.org/techniques/T1648/"
+    "https://attack.mitre.org/techniques/T1648/",
+    "https://pathfinding.cloud/paths/bedrock-001"
    ],
    "url": "https://pathbreak.io/aws-privilege-escalation-map/bedrock-agentcore-passrole-create"
   },
@@ -1335,7 +1363,8 @@
    "tier": 2,
    "combination": true,
    "references": [
-    "https://attack.mitre.org/techniques/T1648/"
+    "https://attack.mitre.org/techniques/T1648/",
+    "https://pathfinding.cloud/paths/braket-001"
    ],
    "url": "https://pathbreak.io/aws-privilege-escalation-map/braket-createjob-passrole"
   },
@@ -1360,7 +1389,8 @@
    "tier": 2,
    "combination": true,
    "references": [
-    "https://attack.mitre.org/techniques/T1648/"
+    "https://attack.mitre.org/techniques/T1648/",
+    "https://pathfinding.cloud/paths/cloudformation-001"
    ],
    "url": "https://pathbreak.io/aws-privilege-escalation-map/cloudformation-passrole-create"
   },
@@ -1386,7 +1416,8 @@
    "tier": 2,
    "combination": true,
    "references": [
-    "https://attack.mitre.org/techniques/T1648/"
+    "https://attack.mitre.org/techniques/T1648/",
+    "https://pathfinding.cloud/paths/cloudformation-003"
    ],
    "url": "https://pathbreak.io/aws-privilege-escalation-map/cloudformation-passrole-create-stackset"
   },
@@ -1411,7 +1442,8 @@
    "tier": 2,
    "combination": true,
    "references": [
-    "https://attack.mitre.org/techniques/T1648/"
+    "https://attack.mitre.org/techniques/T1648/",
+    "https://pathfinding.cloud/paths/cloudformation-004"
    ],
    "url": "https://pathbreak.io/aws-privilege-escalation-map/cloudformation-passrole-update-stackset"
   },
@@ -1437,7 +1469,8 @@
    "tier": 2,
    "combination": true,
    "references": [
-    "https://attack.mitre.org/techniques/T1648/"
+    "https://attack.mitre.org/techniques/T1648/",
+    "https://pathfinding.cloud/paths/codebuild-001"
    ],
    "url": "https://pathbreak.io/aws-privilege-escalation-map/codebuild-passrole-create"
   },
@@ -1463,7 +1496,8 @@
    "tier": 2,
    "combination": true,
    "references": [
-    "https://attack.mitre.org/techniques/T1648/"
+    "https://attack.mitre.org/techniques/T1648/",
+    "https://pathfinding.cloud/paths/codebuild-004"
    ],
    "url": "https://pathbreak.io/aws-privilege-escalation-map/codebuild-passrole-create-batch"
   },
@@ -1490,7 +1524,8 @@
    "tier": 2,
    "combination": true,
    "references": [
-    "https://attack.mitre.org/techniques/T1648/"
+    "https://attack.mitre.org/techniques/T1648/",
+    "https://pathfinding.cloud/paths/datapipeline-001"
    ],
    "url": "https://pathbreak.io/aws-privilege-escalation-map/datapipeline-passrole-create"
   },
@@ -1515,7 +1550,8 @@
    "tier": 2,
    "combination": true,
    "references": [
-    "https://attack.mitre.org/techniques/T1578/002/"
+    "https://attack.mitre.org/techniques/T1578/002/",
+    "https://pathfinding.cloud/paths/ec2-001"
    ],
    "url": "https://pathbreak.io/aws-privilege-escalation-map/ec2-run-passrole"
   },
@@ -1540,7 +1576,8 @@
    "tier": 2,
    "combination": true,
    "references": [
-    "https://attack.mitre.org/techniques/T1578/002/"
+    "https://attack.mitre.org/techniques/T1578/002/",
+    "https://pathfinding.cloud/paths/ec2-003"
    ],
    "url": "https://pathbreak.io/aws-privilege-escalation-map/ec2-spot-passrole"
   },
@@ -1566,7 +1603,8 @@
    "tier": 2,
    "combination": true,
    "references": [
-    "https://attack.mitre.org/techniques/T1610/"
+    "https://attack.mitre.org/techniques/T1610/",
+    "https://pathfinding.cloud/paths/ecs-003"
    ],
    "url": "https://pathbreak.io/aws-privilege-escalation-map/ecs-createservice-passrole"
   },
@@ -1592,7 +1630,8 @@
    "tier": 2,
    "combination": true,
    "references": [
-    "https://attack.mitre.org/techniques/T1610/"
+    "https://attack.mitre.org/techniques/T1610/",
+    "https://pathfinding.cloud/paths/ecs-004"
    ],
    "url": "https://pathbreak.io/aws-privilege-escalation-map/ecs-runtask-passrole"
   },
@@ -1617,7 +1656,8 @@
    "tier": 2,
    "combination": true,
    "references": [
-    "https://attack.mitre.org/techniques/T1610/"
+    "https://attack.mitre.org/techniques/T1610/",
+    "https://pathfinding.cloud/paths/ecs-008"
    ],
    "url": "https://pathbreak.io/aws-privilege-escalation-map/ecs-runtask-override-passrole"
   },
@@ -1642,7 +1682,8 @@
    "tier": 2,
    "combination": true,
    "references": [
-    "https://attack.mitre.org/techniques/T1610/"
+    "https://attack.mitre.org/techniques/T1610/",
+    "https://pathfinding.cloud/paths/ecs-009"
    ],
    "url": "https://pathbreak.io/aws-privilege-escalation-map/ecs-starttask-override-passrole"
   },
@@ -1668,7 +1709,8 @@
    "tier": 2,
    "combination": true,
    "references": [
-    "https://attack.mitre.org/techniques/T1610/"
+    "https://attack.mitre.org/techniques/T1610/",
+    "https://pathfinding.cloud/paths/ecs-005"
    ],
    "url": "https://pathbreak.io/aws-privilege-escalation-map/ecs-starttask-passrole"
   },
@@ -1719,7 +1761,8 @@
    "tier": 2,
    "combination": true,
    "references": [
-    "https://attack.mitre.org/techniques/T1578/002/"
+    "https://attack.mitre.org/techniques/T1578/002/",
+    "https://pathfinding.cloud/paths/emr-001"
    ],
    "url": "https://pathbreak.io/aws-privilege-escalation-map/emr-runjobflow-passrole"
   },
@@ -1745,7 +1788,8 @@
    "tier": 2,
    "combination": true,
    "references": [
-    "https://attack.mitre.org/techniques/T1648/"
+    "https://attack.mitre.org/techniques/T1648/",
+    "https://pathfinding.cloud/paths/emrserverless-001"
    ],
    "url": "https://pathbreak.io/aws-privilege-escalation-map/emr-serverless-passrole"
   },
@@ -1770,7 +1814,8 @@
    "tier": 2,
    "combination": true,
    "references": [
-    "https://attack.mitre.org/techniques/T1648/"
+    "https://attack.mitre.org/techniques/T1648/",
+    "https://pathfinding.cloud/paths/scheduler-001"
    ],
    "url": "https://pathbreak.io/aws-privilege-escalation-map/scheduler-passrole-create"
   },
@@ -1796,7 +1841,8 @@
    "tier": 2,
    "combination": true,
    "references": [
-    "https://attack.mitre.org/techniques/T1578/002/"
+    "https://attack.mitre.org/techniques/T1578/002/",
+    "https://pathfinding.cloud/paths/gamelift-001"
    ],
    "url": "https://pathbreak.io/aws-privilege-escalation-map/gamelift-passrole-create"
   },
@@ -1821,7 +1867,8 @@
    "tier": 2,
    "combination": true,
    "references": [
-    "https://attack.mitre.org/techniques/T1648/"
+    "https://attack.mitre.org/techniques/T1648/",
+    "https://pathfinding.cloud/paths/glue-001"
    ],
    "url": "https://pathbreak.io/aws-privilege-escalation-map/glue-passrole-create"
   },
@@ -1847,7 +1894,8 @@
    "tier": 2,
    "combination": true,
    "references": [
-    "https://attack.mitre.org/techniques/T1648/"
+    "https://attack.mitre.org/techniques/T1648/",
+    "https://pathfinding.cloud/paths/glue-007"
    ],
    "url": "https://pathbreak.io/aws-privilege-escalation-map/glue-session-passrole"
   },
@@ -1873,7 +1921,8 @@
    "tier": 2,
    "combination": true,
    "references": [
-    "https://attack.mitre.org/techniques/T1648/"
+    "https://attack.mitre.org/techniques/T1648/",
+    "https://pathfinding.cloud/paths/glue-003"
    ],
    "url": "https://pathbreak.io/aws-privilege-escalation-map/glue-createjob-passrole"
   },
@@ -1899,7 +1948,8 @@
    "tier": 2,
    "combination": true,
    "references": [
-    "https://attack.mitre.org/techniques/T1648/"
+    "https://attack.mitre.org/techniques/T1648/",
+    "https://pathfinding.cloud/paths/glue-004"
    ],
    "url": "https://pathbreak.io/aws-privilege-escalation-map/glue-createjob-trigger-passrole"
   },
@@ -1925,7 +1975,8 @@
    "tier": 2,
    "combination": true,
    "references": [
-    "https://attack.mitre.org/techniques/T1648/"
+    "https://attack.mitre.org/techniques/T1648/",
+    "https://pathfinding.cloud/paths/glue-005"
    ],
    "url": "https://pathbreak.io/aws-privilege-escalation-map/glue-updatejob-passrole"
   },
@@ -1951,7 +2002,8 @@
    "tier": 2,
    "combination": true,
    "references": [
-    "https://attack.mitre.org/techniques/T1648/"
+    "https://attack.mitre.org/techniques/T1648/",
+    "https://pathfinding.cloud/paths/glue-006"
    ],
    "url": "https://pathbreak.io/aws-privilege-escalation-map/glue-updatejob-trigger-passrole"
   },
@@ -1977,7 +2029,8 @@
    "tier": 2,
    "combination": true,
    "references": [
-    "https://attack.mitre.org/techniques/T1648/"
+    "https://attack.mitre.org/techniques/T1648/",
+    "https://pathfinding.cloud/paths/omics-001"
    ],
    "url": "https://pathbreak.io/aws-privilege-escalation-map/omics-passrole-create"
   },
@@ -2005,7 +2058,8 @@
    "tier": 2,
    "combination": true,
    "references": [
-    "https://attack.mitre.org/techniques/T1578/002/"
+    "https://attack.mitre.org/techniques/T1578/002/",
+    "https://pathfinding.cloud/paths/imagebuilder-001"
    ],
    "url": "https://pathbreak.io/aws-privilege-escalation-map/imagebuilder-passrole-create"
   },
@@ -2030,7 +2084,8 @@
    "tier": 2,
    "combination": true,
    "references": [
-    "https://attack.mitre.org/techniques/T1648/"
+    "https://attack.mitre.org/techniques/T1648/",
+    "https://pathfinding.cloud/paths/lambda-001"
    ],
    "url": "https://pathbreak.io/aws-privilege-escalation-map/lambda-passrole-create"
   },
@@ -2056,7 +2111,8 @@
    "tier": 2,
    "combination": true,
    "references": [
-    "https://attack.mitre.org/techniques/T1648/"
+    "https://attack.mitre.org/techniques/T1648/",
+    "https://pathfinding.cloud/paths/kinesisanalytics-001"
    ],
    "url": "https://pathbreak.io/aws-privilege-escalation-map/kinesisanalytics-passrole-create"
   },
@@ -2106,7 +2162,8 @@
    "tier": 2,
    "combination": true,
    "references": [
-    "https://attack.mitre.org/techniques/T1648/"
+    "https://attack.mitre.org/techniques/T1648/",
+    "https://pathfinding.cloud/paths/sagemaker-001"
    ],
    "url": "https://pathbreak.io/aws-privilege-escalation-map/sagemaker-passrole-create"
   },
@@ -2131,7 +2188,8 @@
    "tier": 2,
    "combination": true,
    "references": [
-    "https://attack.mitre.org/techniques/T1648/"
+    "https://attack.mitre.org/techniques/T1648/",
+    "https://pathfinding.cloud/paths/sagemaker-003"
    ],
    "url": "https://pathbreak.io/aws-privilege-escalation-map/sagemaker-processingjob-passrole"
   },
@@ -2156,7 +2214,8 @@
    "tier": 2,
    "combination": true,
    "references": [
-    "https://attack.mitre.org/techniques/T1648/"
+    "https://attack.mitre.org/techniques/T1648/",
+    "https://pathfinding.cloud/paths/sagemaker-002"
    ],
    "url": "https://pathbreak.io/aws-privilege-escalation-map/sagemaker-trainingjob-passrole"
   },
@@ -2182,7 +2241,8 @@
    "tier": 2,
    "combination": true,
    "references": [
-    "https://attack.mitre.org/techniques/T1648/"
+    "https://attack.mitre.org/techniques/T1648/",
+    "https://pathfinding.cloud/paths/ssm-003"
    ],
    "url": "https://pathbreak.io/aws-privilege-escalation-map/ssm-automation-passrole"
   },
@@ -2208,7 +2268,8 @@
    "tier": 2,
    "combination": true,
    "references": [
-    "https://attack.mitre.org/techniques/T1648/"
+    "https://attack.mitre.org/techniques/T1648/",
+    "https://pathfinding.cloud/paths/stepfunctions-001"
    ],
    "url": "https://pathbreak.io/aws-privilege-escalation-map/stepfunctions-passrole-create"
   },
@@ -2232,7 +2293,8 @@
    "tier": 2,
    "combination": false,
    "references": [
-    "https://attack.mitre.org/techniques/T1098/003/"
+    "https://attack.mitre.org/techniques/T1098/003/",
+    "https://pathfinding.cloud/paths/iam-011"
    ],
    "url": "https://pathbreak.io/aws-privilege-escalation-map/iam-putgrouppolicy"
   },
@@ -2785,7 +2847,8 @@
    "tier": 1,
    "combination": false,
    "references": [
-    "https://attack.mitre.org/techniques/T1098/001/"
+    "https://attack.mitre.org/techniques/T1098/001/",
+    "https://pathfinding.cloud/paths/iam-002"
    ],
    "url": "https://pathbreak.io/aws-privilege-escalation-map/iam-createaccesskey"
   },
@@ -3532,7 +3595,8 @@
    "tier": 1,
    "combination": false,
    "references": [
-    "https://attack.mitre.org/techniques/T1098/001/"
+    "https://attack.mitre.org/techniques/T1098/001/",
+    "https://pathfinding.cloud/paths/iam-006"
    ],
    "url": "https://pathbreak.io/aws-privilege-escalation-map/iam-updateloginprofile"
   },
@@ -3581,7 +3645,8 @@
    "tier": 1,
    "combination": true,
    "references": [
-    "https://attack.mitre.org/techniques/T1098/001/"
+    "https://attack.mitre.org/techniques/T1098/001/",
+    "https://pathfinding.cloud/paths/iam-003"
    ],
    "url": "https://pathbreak.io/aws-privilege-escalation-map/iam-delete-createaccesskey"
   },
@@ -3654,7 +3719,8 @@
    "tier": 1,
    "combination": false,
    "references": [
-    "https://attack.mitre.org/techniques/T1098/001/"
+    "https://attack.mitre.org/techniques/T1098/001/",
+    "https://pathfinding.cloud/paths/iam-004"
    ],
    "url": "https://pathbreak.io/aws-privilege-escalation-map/iam-createloginprofile"
   },

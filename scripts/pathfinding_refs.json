@@ -1,0 +1,201 @@
+{
+ "_about": "Reciprocal cross-links to DataDog/pathfinding.cloud. For each pathbreak-audit check that fires on the required permissions of a pathfinding.cloud path documenting the same technique (verified Nov 2026 via evaluate.py; see docs/outreach/pathfinding-mapping.md in the Pathbreak website repo), the matching path URL is appended to the check's references by scripts/build_checks.py. 66 paths map to 65 checks.",
+ "map": {
+  "apprunner-passrole-create": [
+   "https://pathfinding.cloud/paths/apprunner-001"
+  ],
+  "apprunner-updateservice-hijack": [
+   "https://pathfinding.cloud/paths/apprunner-002"
+  ],
+  "batch-passrole-create": [
+   "https://pathfinding.cloud/paths/batch-001"
+  ],
+  "batch-submitjob-hijack": [
+   "https://pathfinding.cloud/paths/batch-002"
+  ],
+  "bedrock-agentcore-passrole-create": [
+   "https://pathfinding.cloud/paths/bedrock-001"
+  ],
+  "bedrock-agentcore-session-hijack": [
+   "https://pathfinding.cloud/paths/bedrock-002"
+  ],
+  "braket-createjob-passrole": [
+   "https://pathfinding.cloud/paths/braket-001"
+  ],
+  "cloudformation-passrole-create": [
+   "https://pathfinding.cloud/paths/cloudformation-001"
+  ],
+  "cfn-updatestack-hijack": [
+   "https://pathfinding.cloud/paths/cloudformation-002"
+  ],
+  "cloudformation-passrole-create-stackset": [
+   "https://pathfinding.cloud/paths/cloudformation-003"
+  ],
+  "cloudformation-passrole-update-stackset": [
+   "https://pathfinding.cloud/paths/cloudformation-004"
+  ],
+  "cfn-changeset-hijack": [
+   "https://pathfinding.cloud/paths/cloudformation-005"
+  ],
+  "codebuild-passrole-create": [
+   "https://pathfinding.cloud/paths/codebuild-001"
+  ],
+  "codebuild-startbuild-hijack": [
+   "https://pathfinding.cloud/paths/codebuild-002"
+  ],
+  "codebuild-startbuildbatch-hijack": [
+   "https://pathfinding.cloud/paths/codebuild-003"
+  ],
+  "codebuild-passrole-create-batch": [
+   "https://pathfinding.cloud/paths/codebuild-004"
+  ],
+  "codedeploy-createdeployment-hijack": [
+   "https://pathfinding.cloud/paths/codedeploy-001"
+  ],
+  "cognito-identity-setidentitypoolroles-passrole": [
+   "https://pathfinding.cloud/paths/cognitoidentity-001"
+  ],
+  "datapipeline-passrole-create": [
+   "https://pathfinding.cloud/paths/datapipeline-001"
+  ],
+  "ec2-run-passrole": [
+   "https://pathfinding.cloud/paths/ec2-001"
+  ],
+  "ec2-modify-userdata-hijack": [
+   "https://pathfinding.cloud/paths/ec2-002"
+  ],
+  "ec2-spot-passrole": [
+   "https://pathfinding.cloud/paths/ec2-003"
+  ],
+  "ec2-launch-template-userdata-injection": [
+   "https://pathfinding.cloud/paths/ec2-004",
+   "https://pathfinding.cloud/paths/ec2-005"
+  ],
+  "ec2-instance-connect-sendsshpublickey-hijack": [
+   "https://pathfinding.cloud/paths/ec2instanceconnect-003"
+  ],
+  "ecs-createservice-passrole": [
+   "https://pathfinding.cloud/paths/ecs-003"
+  ],
+  "ecs-runtask-passrole": [
+   "https://pathfinding.cloud/paths/ecs-004"
+  ],
+  "ecs-starttask-passrole": [
+   "https://pathfinding.cloud/paths/ecs-005"
+  ],
+  "ecs-runtask-override-passrole": [
+   "https://pathfinding.cloud/paths/ecs-008"
+  ],
+  "ecs-starttask-override-passrole": [
+   "https://pathfinding.cloud/paths/ecs-009"
+  ],
+  "emr-runjobflow-passrole": [
+   "https://pathfinding.cloud/paths/emr-001"
+  ],
+  "emr-serverless-passrole": [
+   "https://pathfinding.cloud/paths/emrserverless-001"
+  ],
+  "gamelift-passrole-create": [
+   "https://pathfinding.cloud/paths/gamelift-001"
+  ],
+  "glue-passrole-create": [
+   "https://pathfinding.cloud/paths/glue-001"
+  ],
+  "glue-updatedevendpoint-hijack": [
+   "https://pathfinding.cloud/paths/glue-002"
+  ],
+  "glue-createjob-passrole": [
+   "https://pathfinding.cloud/paths/glue-003"
+  ],
+  "glue-createjob-trigger-passrole": [
+   "https://pathfinding.cloud/paths/glue-004"
+  ],
+  "glue-updatejob-passrole": [
+   "https://pathfinding.cloud/paths/glue-005"
+  ],
+  "glue-updatejob-trigger-passrole": [
+   "https://pathfinding.cloud/paths/glue-006"
+  ],
+  "glue-session-passrole": [
+   "https://pathfinding.cloud/paths/glue-007"
+  ],
+  "iam-createpolicyversion": [
+   "https://pathfinding.cloud/paths/iam-001"
+  ],
+  "iam-createaccesskey": [
+   "https://pathfinding.cloud/paths/iam-002"
+  ],
+  "iam-delete-createaccesskey": [
+   "https://pathfinding.cloud/paths/iam-003"
+  ],
+  "iam-createloginprofile": [
+   "https://pathfinding.cloud/paths/iam-004"
+  ],
+  "iam-putrolepolicy": [
+   "https://pathfinding.cloud/paths/iam-005"
+  ],
+  "iam-updateloginprofile": [
+   "https://pathfinding.cloud/paths/iam-006"
+  ],
+  "iam-putuserpolicy": [
+   "https://pathfinding.cloud/paths/iam-007"
+  ],
+  "iam-attachuserpolicy": [
+   "https://pathfinding.cloud/paths/iam-008"
+  ],
+  "iam-attachrolepolicy": [
+   "https://pathfinding.cloud/paths/iam-009"
+  ],
+  "iam-attachgrouppolicy": [
+   "https://pathfinding.cloud/paths/iam-010"
+  ],
+  "iam-putgrouppolicy": [
+   "https://pathfinding.cloud/paths/iam-011"
+  ],
+  "iam-addusertogroup": [
+   "https://pathfinding.cloud/paths/iam-013"
+  ],
+  "imagebuilder-passrole-create": [
+   "https://pathfinding.cloud/paths/imagebuilder-001"
+  ],
+  "kinesisanalytics-passrole-create": [
+   "https://pathfinding.cloud/paths/kinesisanalytics-001"
+  ],
+  "lambda-passrole-create": [
+   "https://pathfinding.cloud/paths/lambda-001"
+  ],
+  "lambda-updatefunctioncode-hijack": [
+   "https://pathfinding.cloud/paths/lambda-003"
+  ],
+  "omics-passrole-create": [
+   "https://pathfinding.cloud/paths/omics-001"
+  ],
+  "sagemaker-passrole-create": [
+   "https://pathfinding.cloud/paths/sagemaker-001"
+  ],
+  "sagemaker-trainingjob-passrole": [
+   "https://pathfinding.cloud/paths/sagemaker-002"
+  ],
+  "sagemaker-processingjob-passrole": [
+   "https://pathfinding.cloud/paths/sagemaker-003"
+  ],
+  "sagemaker-presigned-notebook-url": [
+   "https://pathfinding.cloud/paths/sagemaker-004"
+  ],
+  "sagemaker-lifecycleconfig-hijack": [
+   "https://pathfinding.cloud/paths/sagemaker-005"
+  ],
+  "scheduler-passrole-create": [
+   "https://pathfinding.cloud/paths/scheduler-001"
+  ],
+  "ssm-automation-passrole": [
+   "https://pathfinding.cloud/paths/ssm-003"
+  ],
+  "stepfunctions-passrole-create": [
+   "https://pathfinding.cloud/paths/stepfunctions-001"
+  ],
+  "stepfunctions-updatestatemachine-hijack": [
+   "https://pathfinding.cloud/paths/stepfunctions-002"
+  ]
+ }
+}

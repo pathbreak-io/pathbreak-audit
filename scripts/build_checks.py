@@ -13,6 +13,8 @@ import sys, os, re, json, datetime
 HERE = os.path.dirname(os.path.abspath(__file__))
 DEFAULT_SRC = os.path.join(HERE, "attack_primitives.yaml")
 OUT = os.path.join(HERE, "..", "pathbreak_audit", "data", "checks.json")
+# Reciprocal cross-links to DataDog/pathfinding.cloud: check id -> matching path URLs.
+PF_REFS = os.path.join(HERE, "pathfinding_refs.json")
 
 # Only AWS documentation and MITRE ATT&CK references ship (no third-party/vendor links).
 def ref_ok(u):
@@ -80,6 +82,9 @@ def main():
     src = sys.argv[1] if len(sys.argv) > 1 else DEFAULT_SRC
     data = yaml.safe_load(open(src, encoding="utf-8"))
     edges = data.get("permission_edges") or []
+    pf_refs = {}
+    if os.path.exists(PF_REFS):
+        pf_refs = (json.load(open(PF_REFS, encoding="utf-8")).get("map") or {})
     checks = []
     for e in edges:
         needs = e.get("needs_actions") or ([e["primary_action"]] if e.get("primary_action") else [])
@@ -101,7 +106,8 @@ def main():
             "mitre": ({"id": mt.get("id"), "name": mt.get("name")} if isinstance(mt, dict) else None),
             "tier": tier_of(e.get("weight")),
             "combination": len(needs) > 1,
-            "references": [u for u in (e.get("references") or []) if ref_ok(u)],
+            "references": ([u for u in (e.get("references") or []) if ref_ok(u)]
+                           + pf_refs.get(e["id"], [])),
             "url": "https://pathbreak.io/aws-privilege-escalation-map/" + e["id"],
         })
     # worst first, then alphabetical, so the report leads with what matters most
